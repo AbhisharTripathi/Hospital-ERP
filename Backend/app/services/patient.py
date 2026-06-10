@@ -3,10 +3,11 @@ from app.models.patient import PatientModel
 from datetime import datetime
 from app.utils.id_generator import IDGenerator
 import bcrypt
+from app.repositories.patient import PatientRepository
 
 class PatientServices:
     def __init__(self, patient_repository, counter_repository):
-        self.patient_repo = patient_repository
+        self.patient_repo : PatientRepository = patient_repository
         self.counter_repo = counter_repository
 
     async def create_patient(self, patient : PatientCreate):
@@ -34,3 +35,6 @@ class PatientServices:
 
         inserted_id = await self.patient_repo.create_patient(patient.model_dump())
         return inserted_id
+    
+    async def get_patient_data(self, id):
+        return await self.patient_repo.get_by_id(id)
