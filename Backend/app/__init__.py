@@ -12,7 +12,7 @@ def create_app():
 
     app = FastAPI(lifespan=lifespan)
 
-    from .api.v1 import patient
-    app.include_router(patient.router)
+    from .api.v1 import patient_router
+    app.include_router(patient_router)
 
     return app
