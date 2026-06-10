@@ -3,6 +3,10 @@ from fastapi import FastAPI
 
 from .api.v1.patient import router as patient_router
 
+
+from .core.database import connect_mongo, close_mongo
+
+
 def create_app():
 
     @asynccontextmanager
@@ -17,3 +21,6 @@ def create_app():
     app.include_router(patient_router,prefix="/patients")
 
     return app
+        close_mongo()
+
+  
