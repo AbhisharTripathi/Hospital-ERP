@@ -21,12 +21,16 @@ class PatientServices:
         encoded_hashed_password = bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt())
         hashed_password = encoded_hashed_password.decode("utf-8")
 
-        patient = PatientModel(
-            {
-                **patient.model_dump(exclude={"password"}),
-                "patient_id" : patient_id,
-                "password" : hashed_password
-            }
+        patient_data = patient.model_dump(exclude={"password"})
+        patient_data["patient_id"] = patient_id
+        patient_data["password"] = hashed_password
+
+        patient_data["dob"] = datetime.combine(
+            patient_data["dob"],
+            datetime.min.time()
         )
-        inserted_id = await self.patient_repo.create_patient(patient)
+
+        patient = PatientModel(**patient_data)
+
+        inserted_id = await self.patient_repo.create_patient(patient.model_dump())
         return inserted_id

@@ -16,14 +16,16 @@ class PatientStatus(str, Enum):
     DECEASED = "DECEASED"
 
 
-class Patient(BaseModel):
+class PatientModel(BaseModel):
     patient_id: str
 
     first_name: str
     last_name: Optional[str] = None
 
+    password : str
+
     gender: Gender
-    dob: date
+    dob: datetime
 
     phone: str
     email: Optional[EmailStr] = None

@@ -1,16 +1,15 @@
-from pymongo import AsyncMongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 
-client = None
-
-async def connect_mongo():
-    global client
-    client = AsyncMongoClient(settings.MONGO_URI)
+def connect_mongo():
+    client = AsyncIOMotorClient(settings.MONGO_URI)
     db = client[settings.DB_NAME]
     print("Connected with Database...")
-    return db
+    return client, db
 
-async def close_mongo():
-    global client
+def close_mongo(client):
     if client:
         client.close()
+
+async def init_indexes(db):
+    await db.patients.create_index("patient_id", unique=True)
