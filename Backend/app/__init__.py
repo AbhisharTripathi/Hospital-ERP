@@ -8,7 +8,7 @@ def create_app():
     async def lifespan(app: FastAPI):
         app.state.db = await connect_mongo()
         yield
-        close_mongo()
+        await close_mongo()
 
     app = FastAPI(lifespan=lifespan)
 
