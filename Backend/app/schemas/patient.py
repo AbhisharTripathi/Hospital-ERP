@@ -1,9 +1,26 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import date,datetime
 from typing import Optional
 
 from app.models.patient import Gender,BloodGroup,PatientStatus
 
+class PatientCreate(BaseModel):
+    first_name : str = Field(
+        min_length=2,
+        max_length = 50,
+        description="First name must be between 2 to 50 characters long"
+    )
+    last_name : str | None = None
+    password : str | None = None
+    phone : str = Field(..., max_length = 15)
+    email :  Optional[EmailStr] = None
+    gender : Gender
+    dob : date
+    blood_group : BloodGroup | None = None
+    address : str | None = None
+    emergency_contact_name: str | None = None
+    emergency_contact_phone: str | None = None
+    notes : str | None = None
 
 
 
@@ -61,3 +78,4 @@ class PatientSearch(BaseModel):
     phone: Optional[str] = None
     first_name: Optional[str] = None
     address: Optional[str]
+
