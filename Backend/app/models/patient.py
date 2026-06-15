@@ -37,16 +37,15 @@ class PatientModel(BaseModel):
 
     gender: Gender
     dob: date
-    password : str
+   # password : str
 
-    gender: Gender
-    dob: datetime
+    
 
     phone: str
     email: Optional[EmailStr] = None
 
     blood_group: Optional[BloodGroup] = None
-    blood_group: Optional[str] = None
+    
 
     address: Optional[str] = None
 
