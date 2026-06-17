@@ -1,4 +1,4 @@
-from fastapi import Request, Depends,HTTPException, status
+from fastapi import Request, Depends,HTTPException, status,Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.repositories.counters import CountersRepository
@@ -13,6 +13,7 @@ from fastapi.security import (
 )
 
 from app.core.security import decode_token
+from app.models.user import UserRole
 
 security = HTTPBearer()
 
@@ -64,9 +65,13 @@ def get_auth_service(
         get_user_repository
     )
 ) -> AuthService:
+    counter_repo:CountersRepository=Depends(
+        get_counters_repository
+    )
 
     return AuthService(
-        user_repository=user_repo
+        user_repository=user_repo,
+        counter_repository=counter_repo
     )
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(
@@ -108,3 +113,27 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token"
         )
+def require_role(
+    *allowed_roles: UserRole
+):
+
+    async def role_checker(
+        current_user = Depends(
+            get_current_user
+        )
+    ):
+
+        user_role = current_user.get(
+            "role"
+        )
+
+        if user_role not in allowed_roles:
+
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission"
+            )
+
+        return current_user
+
+    return role_checker

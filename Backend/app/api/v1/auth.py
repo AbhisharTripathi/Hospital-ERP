@@ -8,7 +8,7 @@ from app.schemas.auth import (
 
 from app.services.auth import AuthService
 from app.dependencies import get_auth_service
-
+from app.schemas.user import UserCreate
 router=APIRouter(
     prefix="/auth",
     tags=["Authentication"]
@@ -41,3 +41,14 @@ async def get_me(
         "email": current_user["email"],
         "role": current_user["role"]
     }
+@router.post("/register")
+async def register(
+    user: UserCreate,
+    auth_service: AuthService = Depends(
+        get_auth_service
+    )
+):
+
+    return await auth_service.register(
+        user
+    )
