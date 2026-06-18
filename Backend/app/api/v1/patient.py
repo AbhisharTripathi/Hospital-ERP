@@ -1,14 +1,53 @@
-from fastapi import APIRouter, HTTPException, Depends
+
+from fastapi import APIRouter, Depends, Request
 from app.dependencies import get_patient_services
 from app.services.patient import PatientServices
-from app.schemas.patient import PatientCreate
+from app.schemas.patient import (
+    PatientCreate,
+    PatientResponse,
+    PatientUpdate
+)
 
-router = APIRouter(prefix="/patient", tags=["patient"])
+router = APIRouter(prefix="/patients", tags=["patients"])
 
-@router.post("")
+@router.post("", response_model=PatientResponse)
 async def create_patient(
-    patient : PatientCreate,
-    patient_services : PatientServices = Depends(get_patient_services)
+    patient: PatientCreate,
+    patient_services: PatientServices = Depends(get_patient_services)
 ):
     result = await patient_services.create_patient(patient)
-    return {"id": result}
+    
+    # Bug Fix: Fetch by custom patient_id instead of inserted_id (ObjectId)
+    patient_data = await patient_services.get_patient_by_id(result["patient_id"])
+
+    return patient_data
+
+@router.get("", response_model=list[PatientResponse])
+async def get_all_patients(
+    limit: int = 100,
+    patient_services: PatientServices = Depends(get_patient_services)
+):
+    return await patient_services.get_all_patients(limit)
+
+@router.get("/{patient_id}", response_model=PatientResponse)
+async def get_patient_by_id(
+    patient_id: str,
+    patient_services: PatientServices = Depends(get_patient_services)
+):
+    # Method name is now consistent
+    return await patient_services.get_patient_by_id(patient_id)
+
+@router.put("/{patient_id}")
+async def update_patient(
+    patient_id: str,
+    patient_update: PatientUpdate,
+    patient_services: PatientServices = Depends(get_patient_services)
+):
+    return await patient_services.update_patient(patient_id, patient_update)
+
+@router.patch("/{patient_id}/deactivate")
+async def deactivate_patient(
+    patient_id: str,
+    patient_services: PatientServices = Depends(get_patient_services)
+):
+    return await patient_services.deactivate_patient(patient_id)
