@@ -1,70 +1,87 @@
 import { createBrowserRouter, Navigate } from "react-router-dom"
-import AppLayout from "@/layouts/AppLayout.jsx"
-import AuthLayout from "@/layouts/AuthLayout.jsx"
-import NotFound from "@/pages/NotFound.jsx"
-import Welcome from "@/pages/Welcome.jsx"
-import LoginPage from "@/features/auth/pages/LoginPage.jsx"
-import ProtectedRoute from "@/features/auth/pages/ProtectedRoute.jsx"
+
 import PatientCreatePage from "@/features/patients/pages/PatientCreatePage.jsx"
 import PatientListPage from "@/features/patients/pages/PatientListPage.jsx"
 import PatientDetailsPage from "@/features/patients/pages/PatientDetailsPage.jsx"
 import PatientEditPage from "@/features/patients/pages/PatientEditPage.jsx"
 
+import Welcome from "@/pages/Welcome.jsx"
+import Unauthorized from "@/pages/Unauthorized.jsx"
+import AuthLayout from "@/layouts/AuthLayout.jsx"
+import LoginPage from "@/features/auth/pages/LoginPage.jsx"
+import AppAuthWrapper from "@/features/auth/pages/AppAuthWrapper.jsx"
+import RoleBasedRedirect from "@/features/auth/pages/RoleBasedRedirect.jsx"
+import ProtectedRoute from "@/features/auth/pages/ProtectedRoute.jsx"
+import NotFound from "@/pages/NotFound.jsx"
+import ReceptionistLayout from "../features/receptionist/layouts/ReceptionistLayout.jsx"
+import ReceptionistDashboard from "../features/receptionist/components/ReceptionistDashboard.jsx"
+
+
+
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/welcome",
         element: <Welcome />,
-        // element: <Navigate to="/dashboard" replace />,
+    },
+    {
+        path: "/unauthorized",
+        element: <Unauthorized />
     },
     {
         path: "/auth",
         element: <AuthLayout />,
-        errorElement: <NotFound />,
         children: [
             {
                 index: true,
+                element: <Navigate to="/auth/login" replace />
+            },
+            {
                 path: "login",
                 element: <LoginPage />
-            },
-            // {
-            //     path: "dashboard",
-            //     element: <Dashboard />,
-            //     // loader: dashboardLoader,
-            // }
+            }
         ]
     },
     {
-        element: (
-            <ProtectedRoute>
-                <AppLayout/>
-            </ProtectedRoute>
-        ),
+        path: "/",
+        element: <AppAuthWrapper />,
         children: [
-            // {
-            //     path: "/dashboard",
-            //     element: <DashboardPage />
-
-            // },
             {
-                path: "/patients",
+                index: true,
+                element: <RoleBasedRedirect />
+            },
+            {
+                path: "receptionist",
+                element: <ProtectedRoute allowedRoles={['receptionist']} />,
                 children: [
                     {
-                        index: true,
-                        element: <PatientListPage />,
-                    },
-                    {
-                        path: "create",
-                        element: <PatientCreatePage />,
-                    },
-                    {
-                        path: ":patientId",
-                        element: <PatientDetailsPage />,
-                    },
-                    {
-                        path: ":patientId/edit",
-                        element: <PatientEditPage />,
-                    },
-                ],
+                        element: <ReceptionistLayout />,
+                        children: [
+                            {
+                                index: true,
+                                element: <ReceptionistDashboard />
+                            },
+                            {
+                                path: "patients",
+                                element: <PatientListPage />
+                            },
+                            {
+                                path: "patients/create",
+                                element: <PatientCreatePage />,
+                            },
+                            {
+                                path: "patients/:patientId",
+                                element: <PatientDetailsPage />,
+                            },
+                            {
+                                path: "patients/:patientId/edit",
+                                element: <PatientEditPage />,
+                            },
+                        ]
+                    }
+                ]
+            },
+            {
+
             },
         ]
     },

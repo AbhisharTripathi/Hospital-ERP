@@ -1,15 +1,17 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { patientSchema } from "../validation/patientSchema";
 
 function PatientForm({
-  initialData = {},
+  initialData = null,
   onSubmit,
   isLoading = false,
   submitText = "Save Patient",
   showPassword = false
 }) {
+
   const {
     register,
     handleSubmit,
@@ -20,6 +22,7 @@ function PatientForm({
   });
 
   useEffect(() => {
+    if(!initialData) return;
     reset({
       first_name: initialData.first_name || "",
       last_name: initialData.last_name || "",
