@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+div {
+    color: rgb(184, 178, 178);
+    background-color: rgb(36, 34, 34);
+    font-weight: 600;
+}
