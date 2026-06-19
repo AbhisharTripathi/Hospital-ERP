@@ -57,7 +57,12 @@ class AuthService:
         )
 
         return TokenResponse(
-            access_token=acess_token
+            access_token=acess_token,
+            user={
+                "user_id": user["user_id"],
+                "email": user["email"],
+                "role": user["role"]
+            }
         )
 
 

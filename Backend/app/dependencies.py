@@ -61,18 +61,15 @@ def get_user_repository(
 
 
 def get_auth_service(
-    user_repo: UserRepository = Depends(
-        get_user_repository
-    )
+    user_repo: UserRepository = Depends(get_user_repository),
+    counter_repo: CountersRepository = Depends(get_counters_repository) # <-- Isko yahan upar arguments mein daal diya
 ) -> AuthService:
-    counter_repo:CountersRepository=Depends(
-        get_counters_repository
-    )
-
+    
     return AuthService(
         user_repository=user_repo,
         counter_repository=counter_repo
     )
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(
         security
