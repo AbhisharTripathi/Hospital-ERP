@@ -33,8 +33,7 @@ api.interceptors.response.use(
         "access_token"
       );
 
-      window.location.href =
-        "/auth/login";
+      // window.location.href = "/auth/login";
     }
 
     return Promise.reject(error);

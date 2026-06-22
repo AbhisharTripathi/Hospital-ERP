@@ -1,3 +1,5 @@
+// not needed
+
 import { useEffect } from "react";
 
 import { useAuthStore } from "@/store/authStore";
@@ -17,12 +19,19 @@ function AuthInitializer() {
     (state) => state.logout
   );
 
+  const user = useAuthStore(
+    (state) => state.user
+  );
+
+  const setIsLoading = useAuthStore(state => state.setIsLoading);
+
   useEffect(() => {
     const loadUser = async () => {
       if (!token) return;
 
       try {
-
+        setIsLoading(true);
+        console.log("loading true")
         const user = await getCurrentUser();
         setUser(user);
 
@@ -30,13 +39,16 @@ function AuthInitializer() {
         console.error(error);
 
         logout();
+      } finally {
+        setIsLoading(false);
+        console.log("loading false")
       }
     };
 
     loadUser();
   }, [token, setUser, logout]);
 
-  return null;
+  return <div>{user && user.role}</div>;
 }
 
 export default AuthInitializer;

@@ -57,7 +57,7 @@ function PatientEditPage() {
         );
 
         navigate(
-          `/patients/${patientId}`
+          `/receptionist/patients/${patientId}`
         );
       } catch (err) {
         console.error(err);

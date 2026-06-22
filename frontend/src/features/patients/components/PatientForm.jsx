@@ -136,9 +136,9 @@ function PatientForm({
           {...register("gender")}
           className="w-full border rounded-md p-2"
         >
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
         </select>
       </div>
 

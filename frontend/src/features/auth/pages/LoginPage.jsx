@@ -27,7 +27,7 @@ function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      userId: "",
+      email: "",
       password: "",
     },
   });
@@ -37,6 +37,7 @@ function LoginPage() {
       setServerError("");
 
       const response = await loginUser(data);
+      console.log(response);
 
       login(response.access_token);
 
@@ -70,23 +71,23 @@ function LoginPage() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
         >
-          {/* userId */}
+          {/* email */}
           <div>
-            <label htmlFor="userId" className="mb-1 block">
-              User Id
+            <label htmlFor="email" className="mb-1 block">
+              Email 
             </label>
 
             <input
               type="text"
-              id="userId"
-              {...register("userId")}
-              placeholder="DOC-2026-00001"
+              id="email"
+              {...register("email")}
+              placeholder="Enter your email"
               className="w-full rounded-md border p-2"
             />
 
-            {errors.userId && (
+            {errors.email && (
               <p className="mt-1 text-sm text-red-500">
-                {errors.userId.message}
+                {errors.email.message}
               </p>
             )}
           </div>

@@ -7,7 +7,7 @@ import PatientEditPage from "@/features/patients/pages/PatientEditPage.jsx"
 
 import Welcome from "@/pages/Welcome.jsx"
 import Unauthorized from "@/pages/Unauthorized.jsx"
-import AuthLayout from "@/layouts/AuthLayout.jsx"
+import AuthLayout from "@/features/auth/layouts/AuthLayout.jsx"
 import LoginPage from "@/features/auth/pages/LoginPage.jsx"
 import AppAuthWrapper from "@/features/auth/pages/AppAuthWrapper.jsx"
 import RoleBasedRedirect from "@/features/auth/pages/RoleBasedRedirect.jsx"
@@ -15,6 +15,8 @@ import ProtectedRoute from "@/features/auth/pages/ProtectedRoute.jsx"
 import NotFound from "@/pages/NotFound.jsx"
 import ReceptionistLayout from "../features/receptionist/layouts/ReceptionistLayout.jsx"
 import ReceptionistDashboard from "../features/receptionist/components/ReceptionistDashboard.jsx"
+import AdminDashboard from "../features/admin/components/AdminDashboard.jsx";
+import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
 
 
 
@@ -51,7 +53,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "receptionist",
-                element: <ProtectedRoute allowedRoles={['receptionist']} />,
+                element: <ProtectedRoute allowedRoles={['RECEPTIONIST']} />,
                 children: [
                     {
                         element: <ReceptionistLayout />,
@@ -81,7 +83,18 @@ const router = createBrowserRouter([
                 ]
             },
             {
-
+                path: "admin",
+                element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+                children: [
+                    {
+                        index: true,
+                        element: <AdminDashboard />
+                    },
+                    {
+                        path: "user/register",
+                        element: < UserRegisterPage />
+                    },
+                ]
             },
         ]
     },

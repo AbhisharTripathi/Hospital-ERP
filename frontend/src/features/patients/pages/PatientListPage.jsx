@@ -63,7 +63,7 @@ function PatientListPage() {
         </h1>
 
         <Link
-          to="/patients/create"
+          to="/receptionist/patients/create"
           className="px-4 py-2 bg-black text-white rounded-md"
         >
           Create Patient
@@ -141,14 +141,14 @@ function PatientListPage() {
                   <td className="p-3">
                     <div className="flex gap-2">
                       <Link
-                        to={`/patients/${patient._id}`}
+                        to={`/receptionist/patients/${patient.patient_id}`}
                         className="px-3 py-1 border rounded"
                       >
                         View
                       </Link>
 
                       <Link
-                        to={`/patients/${patient._id}/edit`}
+                        to={`/receptionist/patients/${patient.patient_id}/edit`}
                         className="px-3 py-1 border rounded"
                       >
                         Edit

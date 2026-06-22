@@ -5,12 +5,14 @@ const RoleBasedRedirect = () => {
   const user = useAuthStore(state => state.user);
 
   switch (user?.role) {
-    case 'doctor':
+    case 'DOCTOR':
       return <Navigate to="/doctor" replace />;
-    case 'patient':
+    case 'PATIENT':
       return <Navigate to="/patient" replace />;
-    case 'receptionist':
+    case 'RECEPTIONIST':
       return <Navigate to="/receptionist" replace />;
+    case "ADMIN":
+      return <Navigate to="/admin" replace />;
     default:
       return <Navigate to="/welcome" replace />;
   }

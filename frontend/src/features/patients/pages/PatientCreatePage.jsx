@@ -17,7 +17,7 @@ function PatientCreatePage() {
 
       console.log(patient);
 
-      navigate("/patients");
+      navigate("/receptionist/patients");
     } catch (error) {
       console.error(error);
       alert("Failed to create patient");
@@ -37,6 +37,7 @@ function PatientCreatePage() {
           onSubmit={handleCreatePatient}
           isLoading={isLoading}
           submitText="Create Patient"
+          showPassword={true}
         />
       </div>
     </div>

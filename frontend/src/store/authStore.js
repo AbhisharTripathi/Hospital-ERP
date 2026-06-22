@@ -11,6 +11,7 @@ import {
 
 export const useAuthStore = create((set) => ({
   user: null, //getInitialUser()
+  isLoading: true,
   token: getToken(),
   isAuthenticated: !!getToken(),
 
@@ -43,4 +44,6 @@ export const useAuthStore = create((set) => ({
 
     set({ user });
   },
+
+  setIsLoading: (value) => set({isLoading: value}),
 }));

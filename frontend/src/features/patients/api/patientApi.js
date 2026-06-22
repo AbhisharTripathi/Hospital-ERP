@@ -33,7 +33,7 @@ export const updatePatient = async (
   patientId,
   data
 ) => {
-  const response = await api.patch(
+  const response = await api.put(
     `/patients/${patientId}`,
     data
   );

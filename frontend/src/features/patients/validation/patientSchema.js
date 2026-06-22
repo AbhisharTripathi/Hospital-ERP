@@ -25,7 +25,7 @@ export const patientSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  gender: z.enum(["male", "female", "other"]),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
 
   dob: z.string(),
 

@@ -74,7 +74,7 @@ function PatientDetailsPage() {
         </div>
 
         <Link
-          to={`/patients/${patientId}/edit`}
+          to={`/receptionist/patients/${patientId}/edit`}
           className="px-4 py-2 bg-black text-white rounded-md"
         >
           Edit Patient
