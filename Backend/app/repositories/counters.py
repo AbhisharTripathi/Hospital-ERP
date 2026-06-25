@@ -13,3 +13,4 @@ class CountersRepository:
             return_document=ReturnDocument.AFTER  # Safe for upserts!
         )
         return counter["sequence"]
+    

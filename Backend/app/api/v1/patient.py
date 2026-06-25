@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request,HTTPException, status
 from app.dependencies import get_patient_services
 from app.services.patient import PatientServices
 from app.schemas.patient import (
@@ -15,12 +15,22 @@ async def create_patient(
     patient: PatientCreate,
     patient_services: PatientServices = Depends(get_patient_services)
 ):
-    result = await patient_services.create_patient(patient)
-    
-    # Bug Fix: Fetch by custom patient_id instead of inserted_id (ObjectId)
-    patient_data = await patient_services.get_patient_by_id(result["patient_id"])
+    try:
+        result = await patient_services.create_patient(patient)
+        
+        # Bug Fix: Fetch by custom patient_id instead of inserted_id (ObjectId)
+        patient_data = await patient_services.get_patient_by_id(result["patient_id"])
 
-    return patient_data
+        return patient_data
+    except HTTPException as http_exc:
+        # for duplicate phone number
+        raise http_exc
+    except Exception as e:
+        #baaki sabhi error ke liye
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server  error : {str(e)}"
+        )
 
 @router.get("", response_model=list[PatientResponse])
 async def get_all_patients(

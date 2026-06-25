@@ -11,7 +11,7 @@ class PatientCreate(BaseModel):
         description="First name must be between 2 to 50 characters long"
     )
     last_name : str | None = None
-    password : str | None = None
+    password : str | None = None # password baad me htna chahiye kyuki patient khud apna account nahi banayega
     phone : str = Field(..., max_length = 15)
     email :  Optional[EmailStr] = None
     gender : Gender
@@ -77,5 +77,5 @@ class PatientSearch(BaseModel):
     patient_id: Optional[str] = None
     phone: Optional[str] = None
     first_name: Optional[str] = None
-    address: Optional[str]
+    address: Optional[str]=None
 

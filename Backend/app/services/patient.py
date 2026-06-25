@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import bcrypt
-
+from fastapi import HTTPException,status
 from app.models.patient import PatientModel
 from app.schemas.patient import (
     PatientCreate,
@@ -22,7 +22,10 @@ class PatientServices:
         existing_patient = await self.patient_repo.get_by_phone(patient.phone)
 
         if existing_patient:
-            raise ValueError("Patient already exists with this phone number")
+            raise HTTPException(
+                status_code= status.HTTP_409_CONFLICT,
+                detail=" patient already exist with this phone number"
+            )
 
         # Generate Patient ID
         patient_id = await IDGenerator.generate_patient_id(self.counter_repo)
@@ -57,13 +60,16 @@ class PatientServices:
             "inserted_id": str(inserted_id)
         }
 
-    # Bug Fix: Renamed to match what Router calls
+    
     async def get_patient_by_id(self, patient_id: str):
-        # Bug Fix: Renamed to match Repo's method
+        
         patient = await self.patient_repo.get_patient_by_id(patient_id)
 
         if not patient:
-            raise ValueError("Patient not found")
+            raise HTTPException(
+                status_code=404,
+                detail="Patient not found"
+            )
 
         return patient
 
@@ -112,3 +118,4 @@ class PatientServices:
         )
 
         return {"modified_count": result.modified_count}
+    

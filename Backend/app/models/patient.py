@@ -12,6 +12,7 @@ class BloodGroup(str,Enum):
     B_NEGATIVE="B-"
     O_POSITIVE="O+"
     O_NEGATIVE="O-"
+    
 
 
     
