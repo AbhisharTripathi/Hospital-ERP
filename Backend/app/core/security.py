@@ -1,5 +1,6 @@
-import bcrypt
-import jwt
+import bcrypt #password keep safe
+ 
+import jwt # userr gets login through jwt token
 
 from datetime import datetime, timedelta, timezone
 from app.core.config import settings
@@ -10,8 +11,8 @@ def hash_password(
 ) -> str:
 
     return bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt()
+        password.encode("utf-8"), # password ko pahle byte me badalte hai
+        bcrypt.gensalt() #ye ek random string daal deta hai agar do logo ke password same bhi ho to bhi hash value different ho
     ).decode("utf-8")
 
 
@@ -29,7 +30,7 @@ def verify_password(
 def create_access_token(data: dict) -> str:
     
 
-    payload = data.copy()
+    payload = data.copy() # payload me user ki information hoti hai
 
     expire = datetime.now(
         timezone.utc

@@ -1,11 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-
-
-
-
-
 class Settings(BaseSettings):
    
     MONGO_URI: str = "mongodb://127.0.0.1:27017/"
@@ -20,3 +13,6 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+# basesetting pydantic ka ek special class hai jo env ko automatic read aur validate karne ke liye bana hota hai
+#setting config dict ye setting ki configuration ko set karne ke kaam aata hai

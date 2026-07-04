@@ -33,3 +33,20 @@ class IDGenerator:
         )
 
         return f"USR-{year}-{seq:05d}"
+    
+    @staticmethod
+    async def generate_doctor_id(
+        counter_repo
+    )->str:
+        tz=zoneinfo.ZoneInfo(
+            "Asia/Kolkata"
+        )
+        year=datetime.now(
+            tz
+        ).year
+
+        seq= await counter_repo.get_next_sequence(
+            f"doctor:{year}"
+        )
+
+        return f"DOC-{year}-{seq:05d}"

@@ -1,4 +1,4 @@
-from fastapi import Request, Depends,HTTPException, status,Depends
+from fastapi import Request,HTTPException, status,Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.repositories.counters import CountersRepository
@@ -14,6 +14,9 @@ from fastapi.security import (
 
 from app.core.security import decode_token
 from app.models.user import UserRole
+from app.repositories.doctor import DoctorRepository
+
+from app.services.doctor import DoctorService
 
 security = HTTPBearer()
 
@@ -134,3 +137,27 @@ def require_role(
         return current_user
 
     return role_checker
+
+def get_doctor_repository(
+    db: AsyncIOMotorDatabase = Depends(
+        get_db
+    )
+):
+    return DoctorRepository(db)
+
+def get_doctor_service(
+    doctor_repo: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+    user_repo: UserRepository = Depends(
+        get_user_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+):
+    return DoctorService(
+        doctor_repository=doctor_repo,
+        user_repository=user_repo,
+        counter_repository=counter_repo
+    )

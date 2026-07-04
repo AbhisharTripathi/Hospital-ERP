@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
 from datetime import datetime, timezone
 
-
+# pydantic = ODM (object development mapper)
 class UserRole(str, Enum):
     ADMIN = "ADMIN"
     DOCTOR = "DOCTOR"
