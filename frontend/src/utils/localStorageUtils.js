@@ -1,3 +1,5 @@
+//removed from authStore.js
+
 export const getToken = () =>
   localStorage.getItem("access_token");
 

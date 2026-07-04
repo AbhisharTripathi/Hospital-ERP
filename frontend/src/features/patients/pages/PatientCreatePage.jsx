@@ -28,17 +28,20 @@ function PatientCreatePage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="border rounded-lg bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold mb-6">
+      <div className="border border-slate-200 rounded-2xl bg-white shadow-sm">
+
+        <h1 className="text-2xl font-bold mb-1 flex items-center justify-center bg-blue-100 h-20 text-center rounded-t-2xl text-blue-700">
           Create Patient
         </h1>
-
-        <PatientForm
-          onSubmit={handleCreatePatient}
-          isLoading={isLoading}
-          submitText="Create Patient"
-          showPassword={true}
-        />
+        
+        <div className="p-6">
+          <PatientForm
+            onSubmit={handleCreatePatient}
+            isLoading={isLoading}
+            submitText="Add Patient"
+            showPassword={true}
+          />
+        </div>
       </div>
     </div>
   );

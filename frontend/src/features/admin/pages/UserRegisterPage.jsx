@@ -3,6 +3,11 @@ import { useForm } from 'react-hook-form';
 import { registerUser } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 
+import FormField from "@/components/forms/FormField.jsx";
+import Input from "@/components/forms/Input.jsx";
+import Select from "@/components/forms/Select.jsx";
+import SubmitButton from "@/components/forms/SubmitButton.jsx";
+
 function UserRegisterPage() {
 
     const [ serverError, setServerError] = useState(null);
@@ -31,11 +36,11 @@ function UserRegisterPage() {
 
   return (
 
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm">
+    <div className="flex min-h-5 items-center justify-center bg-slate-50">
+        <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-sm">
 
-            <div className="mb-8 text-center">
-                <h1 className="text-3xl font-bold">
+            <div className="mb-4text-center bg-blue-100 h-25 flex flex-col items-center justify-center rounded-t-lg p-4">
+                <h1 className="text-3xl font-bold text-blue-700">
                     Hospital ERP
                 </h1>
 
@@ -44,37 +49,53 @@ function UserRegisterPage() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" >
-                <div>
-                    <label htmlFor="username" className="mb-1 block">Username </label>
-                    <input {...register("username")}  className="w-full rounded-md border p-2"/>
-                    {errors.username && errors.username.message}
-                </div>
-                <div>
-                    <label htmlFor="email" className="mb-1 block" >Email </label>
-                    <input {...register("email")} className="w-full rounded-md border p-2"/>
-                    {errors.email && errors.email.message}
-                </div>
-                <div>
-                    <label htmlFor="password">Password </label>
-                    <input {...register("password")} className="w-full rounded-md border p-2"/>
-                    {errors.password && errors.password.message}
-                </div>
-                <div>
-                    <label htmlFor="role" className="mb-1 block" >Role </label>
-                    <select {...register("role")} className="w-full border rounded-md p-2" >
-                        <option value="" >Select Role</option>
-                        <option value="DOCTOR" >Doctor</option>
-                        <option value="RECEPTIONIST" >Receptionist</option>
-                        <option value="ADMIN" >Admin</option>
-                    </ select>
-                    {errors.role && errors.role.message}
-                </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-8" >
+                <FormField
+                    label="Username"
+                    required
+                    error={errors.username}
+                >
+                    <Input {...register("username")} />
+                </FormField>
 
-                <button type='submit' disabled={isSubmitting}
-                 className="w-full rounded-md bg-black px-4 py-2 text-white disabled:opacity-50">
+                <FormField
+                    label="Email"
+                    required
+                    error={errors.email}
+                >
+                    <Input type="email" {...register("email")} />
+                </FormField>
+
+                <FormField
+                    label="Password"
+                    required
+                    error={errors.password}
+                >
+                    <Input type="password" {...register("password")} />
+                </FormField>
+
+                <FormField
+                    label="Role"
+                    required
+                    error={errors.role}
+                >
+                    <Select {...register("role")}>
+                        <option value="">Select Role</option>
+                        <option value="DOCTOR">Doctor</option>
+                        <option value="RECEPTIONIST">Receptionist</option>
+                        <option value="ADMIN">Admin</option>
+                    </Select>
+                </FormField>
+
+                {serverError && (
+                    <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-600">
+                        {serverError}
+                    </div>
+                )}                  
+
+                <SubmitButton isLoading={isSubmitting} className="w-full">
                     {isSubmitting ? "Registering..." : "Register"}
-                </button>
+                </SubmitButton>
 
             </form>
         </div>

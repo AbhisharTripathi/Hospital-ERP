@@ -1,8 +1,14 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { patientSchema } from "../validation/patientSchema";
+
+import FormSection from "@/components/forms/FormSection.jsx";
+import FormField from "@/components/forms/FormField.jsx";
+import Input from "@/components/forms/Input.jsx";
+import Select from "@/components/forms/Select.jsx";
+import Textarea from "@/components/forms/Textarea.jsx";
+import SubmitButton from "@/components/forms/SubmitButton.jsx";
 
 function PatientForm({
   initialData = null,
@@ -41,195 +47,144 @@ function PatientForm({
     });
   }, [initialData, reset]);
 
+  const bloodGroups = [
+    "A+",
+    "A-",
+    "B+",
+    "B-",
+    "AB+",
+    "AB-",
+    "O+",
+    "O-"
+  ];
+
+  const genders = [
+    "MALE",
+    "FEMALE",
+    "OTHER"
+  ];
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      className="flex flex-col gap-6"
     >
-      <div>
-        <label className="block mb-1">
-          First Name *
-        </label>
+      <FormSection title="Patient Information">
+        <FormField
+          label="First Name"
+          required
+          error={errors.first_name}
+        >
+          <Input {...register("first_name")} />
+        </FormField>
 
-        <input
-          {...register("first_name")}
-          className="w-full border rounded-md p-2"
-        />
+        <FormField
+          label="Last Name"
+          required
+          error={errors.last_name}
+        >
+          <Input {...register("last_name")} />
+        </FormField>
 
-        {errors.first_name && (
-          <p className="text-red-500 text-sm">
-            {errors.first_name.message}
-          </p>
-        )}
-      </div>
+        <FormField
+          label="Phone"
+          required
+          error={errors.phone}
+        >
+          <Input {...register("phone")} />
+        </FormField>
 
-      <div>
-        <label className="block mb-1">
-          Last Name
-        </label>
+        <FormField
+          label="Email"
+          error={errors.email}
+        >
+          <Input type="email" {...register("email")} />
+        </FormField>
+        
+        <FormField
+          label="Gender"
+          required
+          >
+          <Select {...register("gender")} >
+            {
+              genders.map((group) => (
+                <option key={group} value={group}>{group}</option>
+              ))
+            }
+          </Select>
+        </FormField>
 
-        <input
-          {...register("last_name")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Phone *
-        </label>
-
-        <input
-          {...register("phone")}
-          className="w-full border rounded-md p-2"
-        />
-
-        {errors.phone && (
-          <p className="text-red-500 text-sm">
-            {errors.phone.message}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Email
-        </label>
-
-        <input
-          type="email"
-          {...register("email")}
-          className="w-full border rounded-md p-2"
-        />
-
-        {errors.email && (
-          <p className="text-red-500 text-sm">
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+        <FormField
+          label="Date of Birth"
+          required
+          error={errors.dob}
+          >
+          <Input type="date" {...register("dob")} />
+        </FormField>
 
         {
           showPassword && (
-            <div>
-              <label className="block mb-1">
-                Password
-              </label>
-
-              <input
-                type="password"
-                {...register("password")}
-                className="w-full border rounded-md p-2"
-              />
-            </div>  
-          
+            <FormField
+              label="Password"
+              error={errors.password}
+            >
+              <Input type="password" {...register("password")} />
+            </FormField>
           )
         }
+      </FormSection>
+
+      <FormSection title="Medical Information">
+        <FormField
+          label="Blood Group"
+        >
+          <Select {...register("blood_group")} >
+            <option value="">Select</option>
+            {
+              bloodGroups.map((group) => (
+                <option key={group} value={group}>{group}</option>
+              ))
+            }
+          </Select>
+        </FormField>
+
+        <FormField
+          label="Notes"
+          error={errors.notes}
+        >
+          <Textarea {...register("notes")} rows={1} />
+        </FormField>
+      </FormSection>
+
+      <FormSection title="Contact Information">
+        <FormField
+          label="Emergency Contact Name"
+          error={errors.emergency_contact_name}
+        >
+          <Input {...register("emergency_contact_name")} />
+        </FormField>
+
+        <FormField
+          label="Emergency Contact Phone"
+          error={errors.emergency_contact_phone}
+        >
+          <Input {...register("emergency_contact_phone")} />
+        </FormField>
+        
+        <FormField
+          label="Address"
+          error={errors.address}
+        >
+          <Textarea {...register("address")} rows={3} />
+        </FormField>
+      </FormSection>
       
-
-      <div>
-        <label className="block mb-1">
-          Gender *
-        </label>
-
-        <select
-          {...register("gender")}
-          className="w-full border rounded-md p-2"
-        >
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-          <option value="OTHER">Other</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Date of Birth *
-        </label>
-
-        <input
-          type="date"
-          {...register("dob")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Blood Group
-        </label>
-
-        <select
-          {...register("blood_group")}
-          className="w-full border rounded-md p-2"
-        >
-          <option value="">Select</option>
-          <option value="A+">A+</option>
-          <option value="A-">A-</option>
-          <option value="B+">B+</option>
-          <option value="B-">B-</option>
-          <option value="AB+">AB+</option>
-          <option value="AB-">AB-</option>
-          <option value="O+">O+</option>
-          <option value="O-">O-</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Emergency Contact Name
-        </label>
-
-        <input
-          {...register("emergency_contact_name")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1">
-          Emergency Contact Phone
-        </label>
-
-        <input
-          {...register("emergency_contact_phone")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
-      <div className="md:col-span-2">
-        <label className="block mb-1">
-          Address
-        </label>
-
-        <textarea
-          rows={3}
-          {...register("address")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
-      <div className="md:col-span-2">
-        <label className="block mb-1">
-          Notes
-        </label>
-
-        <textarea
-          rows={4}
-          {...register("notes")}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
-
       <div className="md:col-span-2 flex justify-end">
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="px-6 py-2 bg-black text-white rounded-md"
-        >
-          {isLoading ? "Saving..." : submitText}
-        </button>
+        <SubmitButton isLoading={isLoading}>
+          {submitText}
+        </SubmitButton>
       </div>
+
     </form>
   );
 }

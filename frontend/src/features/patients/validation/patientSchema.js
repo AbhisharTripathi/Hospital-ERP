@@ -23,13 +23,13 @@ export const patientSchema = z.object({
     .string()
     .email("Invalid email")
     .optional()
-    .or(z.literal("")),
+    .or(z.literal("")).transform((val) => val === "" ? undefined : val),
 
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
 
   dob: z.string(),
 
-  blood_group: z.string().optional(),
+  blood_group: z.string().nullable().transform((val) => val === "" || val === null ? undefined : val).optional(),
 
   address: z.string().optional(),
 

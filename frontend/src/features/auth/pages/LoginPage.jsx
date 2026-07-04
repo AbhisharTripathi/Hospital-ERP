@@ -9,6 +9,11 @@ import { loginUser } from "../api/authApi";
 
 import { useAuthStore } from "@/store/authStore";
 
+import FormField from "@/components/forms/FormField.jsx";
+import Input from "@/components/forms/Input.jsx";
+import SubmitButton from "@/components/forms/SubmitButton.jsx";
+
+
 function LoginPage() {
   const navigate = useNavigate();
 
@@ -41,7 +46,6 @@ function LoginPage() {
 
       login(response.access_token);
 
-      // navigate("/dashboard");
       navigate("/");
     } catch (error) {
       console.error(error);
@@ -54,11 +58,11 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
-      <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm">
+    <div className="flex min-h-full items-center justify-center bg-slate-50">
+      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-sm">
 
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold">
+        <div className="mb-4 text-center bg-blue-100 h-25 flex flex-col items-center justify-center rounded-t-lg p-4">
+          <h1 className="text-3xl font-bold text-blue-700">
             Hospital ERP
           </h1>
 
@@ -69,66 +73,41 @@ function LoginPage() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
+          className="space-y-6 p-8"
         >
-          {/* email */}
-          <div>
-            <label htmlFor="email" className="mb-1 block">
-              Email 
-            </label>
-
-            <input
-              type="text"
-              id="email"
-              {...register("email")}
+          
+          <FormField
+          label="Email"
+          error={errors.email}
+          required
+          >
+            <Input {...register("email")}
               placeholder="Enter your email"
-              className="w-full rounded-md border p-2"
             />
+          </FormField>
 
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="mb-1 block">
-              Password
-            </label>
-
-            <input
+          <FormField
+            label="Password"
+            error={errors.password}
+            required
+          >
+            <Input
               type="password"
               {...register("password")}
               placeholder="Enter password"
-              className="w-full rounded-md border p-2"
             />
+          </FormField>
 
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {/* Server Error */}
           {serverError && (
             <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-600">
               {serverError}
             </div>
           )}
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-black px-4 py-2 text-white disabled:opacity-50"
-          >
-            {isSubmitting
-              ? "Signing In..."
-              : "Sign In"}
-          </button>
+          <SubmitButton isLoading={isSubmitting} className="w-full">
+            Sign In
+          </SubmitButton>
+
         </form>
       </div>
     </div>

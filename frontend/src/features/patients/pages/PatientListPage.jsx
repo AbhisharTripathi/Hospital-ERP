@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import PatientCard from "../components/PatientCard.jsx";
 
 import { getPatients } from "../api/patientApi";
 
@@ -55,7 +56,7 @@ function PatientListPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">
@@ -64,102 +65,27 @@ function PatientListPage() {
 
         <Link
           to="/receptionist/patients/create"
-          className="px-4 py-2 bg-black text-white rounded-md"
+          className="py-2.5 px-5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Create Patient
         </Link>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden border rounded-lg">
-        <table className="w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="text-left p-3">
-                Patient ID
-              </th>
-
-              <th className="text-left p-3">
-                Name
-              </th>
-
-              <th className="text-left p-3">
-                Phone
-              </th>
-
-              <th className="text-left p-3">
-                Gender
-              </th>
-
-              <th className="text-left p-3">
-                Email
-              </th>
-
-              <th className="text-left p-3">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
+      <div>
             {patients.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="6"
+                <h3
                   className="text-center p-6"
                 >
                   No patients found
-                </td>
-              </tr>
+                </h3>
             ) : (
-              patients.map((patient) => (
-                <tr
-                  key={patient._id}
-                  className="border-t"
-                >
-                  <td className="p-3">
-                    {patient.patient_id}
-                  </td>
-
-                  <td className="p-3">
-                    {patient.first_name}{" "}
-                    {patient.last_name}
-                  </td>
-
-                  <td className="p-3">
-                    {patient.phone}
-                  </td>
-
-                  <td className="p-3 capitalize">
-                    {patient.gender}
-                  </td>
-
-                  <td className="p-3">
-                    {patient.email || "-"}
-                  </td>
-
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      <Link
-                        to={`/receptionist/patients/${patient.patient_id}`}
-                        className="px-3 py-1 border rounded"
-                      >
-                        View
-                      </Link>
-
-                      <Link
-                        to={`/receptionist/patients/${patient.patient_id}/edit`}
-                        className="px-3 py-1 border rounded"
-                      >
-                        Edit
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {patients.map((patient) => (
+                  <PatientCard key={patient.patient_id} {...patient} />
+                ))}
+              </div>
             )}
-          </tbody>
-        </table>
       </div>
     </div>
   );

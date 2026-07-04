@@ -4,6 +4,7 @@ import PatientCreatePage from "@/features/patients/pages/PatientCreatePage.jsx"
 import PatientListPage from "@/features/patients/pages/PatientListPage.jsx"
 import PatientDetailsPage from "@/features/patients/pages/PatientDetailsPage.jsx"
 import PatientEditPage from "@/features/patients/pages/PatientEditPage.jsx"
+import AppLayout from "@/layouts/AppLayout.jsx";
 
 import Welcome from "@/pages/Welcome.jsx"
 import Unauthorized from "@/pages/Unauthorized.jsx"
@@ -17,6 +18,7 @@ import ReceptionistLayout from "../features/receptionist/layouts/ReceptionistLay
 import ReceptionistDashboard from "../features/receptionist/components/ReceptionistDashboard.jsx"
 import AdminDashboard from "../features/admin/components/AdminDashboard.jsx";
 import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
+import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
 
 
 
@@ -26,78 +28,89 @@ const router = createBrowserRouter([
         element: <Welcome />,
     },
     {
-        path: "/unauthorized",
-        element: <Unauthorized />
-    },
-    {
-        path: "/auth",
-        element: <AuthLayout />,
+        element: <AppLayout />,
         children: [
             {
-                index: true,
-                element: <Navigate to="/auth/login" replace />
+                path: "/unauthorized",
+                element: <Unauthorized />
             },
             {
-                path: "login",
-                element: <LoginPage />
-            }
-        ]
-    },
-    {
-        path: "/",
-        element: <AppAuthWrapper />,
-        children: [
-            {
-                index: true,
-                element: <RoleBasedRedirect />
-            },
-            {
-                path: "receptionist",
-                element: <ProtectedRoute allowedRoles={['RECEPTIONIST']} />,
+                path: "/auth",
+                element: <AuthLayout />,
                 children: [
                     {
-                        element: <ReceptionistLayout />,
-                        children: [
-                            {
-                                index: true,
-                                element: <ReceptionistDashboard />
-                            },
-                            {
-                                path: "patients",
-                                element: <PatientListPage />
-                            },
-                            {
-                                path: "patients/create",
-                                element: <PatientCreatePage />,
-                            },
-                            {
-                                path: "patients/:patientId",
-                                element: <PatientDetailsPage />,
-                            },
-                            {
-                                path: "patients/:patientId/edit",
-                                element: <PatientEditPage />,
-                            },
-                        ]
+                        index: true,
+                        element: <Navigate to="/auth/login" replace />
+                    },
+                    {
+                        path: "login",
+                        element: <LoginPage />
                     }
                 ]
             },
             {
-                path: "admin",
-                element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+                path: "/",
+                element: <AppAuthWrapper />,
                 children: [
                     {
                         index: true,
-                        element: <AdminDashboard />
+                        element: <RoleBasedRedirect />
                     },
                     {
-                        path: "user/register",
-                        element: < UserRegisterPage />
+                        path: "receptionist",
+                        element: <ProtectedRoute allowedRoles={['RECEPTIONIST']} />,
+                        children: [
+                            {
+                                element: <ReceptionistLayout />,
+                                children: [
+                                    {
+                                        index: true,
+                                        element: <ReceptionistDashboard />
+                                    },
+                                    {
+                                        path: "patients",
+                                        element: <PatientListPage />
+                                    },
+                                    {
+                                        path: "patients/create",
+                                        element: <PatientCreatePage />,
+                                    },
+                                    {
+                                        path: "patients/:patientId",
+                                        element: <PatientDetailsPage />,
+                                    },
+                                    {
+                                        path: "patients/:patientId/edit",
+                                        element: <PatientEditPage />,
+                                    },
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        path: "admin",
+                        element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+                        children: [
+                            {
+                                element: <AdminLayout />,
+                                children: [
+                                    {
+                                        index: true,
+                                        element: <AdminDashboard />
+                                    },
+                                    {
+                                        path: "user/register",
+                                        element: < UserRegisterPage />
+                                    },
+                                ]                                
+                            },
+                        ]
                     },
                 ]
             },
         ]
     },
+    
     {
         path: "*",
         element: <NotFound />,

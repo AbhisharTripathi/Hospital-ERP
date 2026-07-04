@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAccessToken } from "./getAccessToken.js";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -10,9 +11,7 @@ const api = axios.create({
 // Request Interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(
-      "access_token"
-    );
+    const token = getAccessToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -24,20 +23,17 @@ api.interceptors.request.use(
 );
 
 // Response Interceptor
-api.interceptors.response.use(
-  (response) => response,
+// api.interceptors.response.use(
+//   (response) => response,
 
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem(
-        "access_token"
-      );
+//   (error) => {
+//     if (error.response?.status === 401) {
+//        useAuthStore.getState().logout();
+//       // window.location.href = "/auth/login";
+//     }
 
-      // window.location.href = "/auth/login";
-    }
-
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;
