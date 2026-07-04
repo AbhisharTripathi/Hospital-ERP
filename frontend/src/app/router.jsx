@@ -20,6 +20,8 @@ import AdminDashboard from "../features/admin/components/AdminDashboard.jsx";
 import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
 import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
 
+import OwnerRegisterPage from "@/features/owner/pages/OwnerRegisterPage.jsx"
+
 
 
 const router = createBrowserRouter([
@@ -45,7 +47,11 @@ const router = createBrowserRouter([
                     {
                         path: "login",
                         element: <LoginPage />
-                    }
+                    },
+                    {
+                        path: "register",
+                        element: <OwnerRegisterPage />
+                    },
                 ]
             },
             {

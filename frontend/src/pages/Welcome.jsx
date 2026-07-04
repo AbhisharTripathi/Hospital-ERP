@@ -67,12 +67,9 @@ export default function Welcome() {
               Login
             </Link>
 
-
-            <button className="
-              btn-primary
-            ">
-              Book Appointment
-            </button>
+            <Link to="/auth/register" className="btn-primary">
+            Register your Hospital
+            </Link>
 
           </div>
 
