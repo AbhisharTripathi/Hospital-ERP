@@ -1,55 +1,75 @@
-from fastapi import APIRouter,Depends
-from app.dependencies import get_current_user
+from fastapi import APIRouter, Depends, status
+
+from app.dependencies import (
+    get_auth_service,
+    get_current_user,
+    get_hospital_service,
+)
 
 from app.schemas.auth import (
     LoginRequest,
-    TokenResponse
+    TokenResponse,
+)
+
+from app.schemas.user import UserCreate
+
+from app.schemas.hospital import (
+    HospitalOwnerRegister,
+    HospitalRegisterResponse,
 )
 
 from app.services.auth import AuthService
-from app.dependencies import get_auth_service
-from app.schemas.user import UserCreate
-router=APIRouter(
-    prefix="/auth",
-    tags=["Authentication"]
+from app.services.hospital import HospitalService
 
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"],
 )
+
 
 @router.post(
     "/login",
-    response_model=TokenResponse
-    
+    response_model=TokenResponse,
 )
-
 async def login(
-    login_data:LoginRequest,
-    auth_service:AuthService= Depends(
-        get_auth_service
-    )
+    login_data: LoginRequest,
+    auth_service: AuthService = Depends(get_auth_service),
 ):
-    return await auth_service.login(
-        login_data
-    )
+    return await auth_service.login(login_data)
+
+
 @router.get("/me")
 async def get_me(
-    current_user = Depends(
-        get_current_user
-    )
+    current_user=Depends(get_current_user),
 ):
-
     return {
         "user_id": current_user["user_id"],
         "email": current_user["email"],
-        "role": current_user["role"]
+        "role": current_user["role"],
     }
+
+
+# Old endpoint (temporary)
 @router.post("/register")
 async def register(
     user: UserCreate,
-    auth_service: AuthService = Depends(
-        get_auth_service
-    )
+    auth_service: AuthService = Depends(get_auth_service),
 ):
+    return await auth_service.register(user)
 
-    return await auth_service.register(
-        user
+
+@router.post(
+    "/register-hospital",
+    response_model=HospitalRegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def register_hospital(
+    register_data: HospitalOwnerRegister,
+    hospital_service: HospitalService = Depends(
+        get_hospital_service
+    ),
+):
+    return await hospital_service.register_hospital_owner(
+        register_data
     )

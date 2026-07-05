@@ -1,6 +1,3 @@
-from app.models.user import UserModel
-
-
 class UserRepository:
 
     def __init__(self, db):
@@ -17,20 +14,22 @@ class UserRepository:
 
     async def get_by_email(
         self,
-        email: str
+        email: str,
+        hospital_id: str | None = None
     ):
+        query = {
+            "email": email
+        }
 
-        return await self.db.users.find_one(
-            {
-                "email": email
-            }
-        )
+        if hospital_id is not None:
+            query["hospital_id"] = hospital_id
+
+        return await self.db.users.find_one(query)
 
     async def get_by_user_id(
         self,
         user_id: str
     ):
-
         return await self.db.users.find_one(
             {
                 "user_id": user_id
@@ -42,7 +41,6 @@ class UserRepository:
         user_id: str,
         updated_data: dict
     ):
-
         return await self.db.users.update_one(
             {
                 "user_id": user_id
