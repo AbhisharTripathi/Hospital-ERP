@@ -13,7 +13,32 @@ async def connect_mongo():
     db = client[settings.DB_NAME]
     
     
-    await db.patients.create_index("patient_id", unique=True)
+    
+    await db.users.create_index(
+        [
+            ("hospital_id", 1),
+            ("email", 1)
+        ],
+        unique=True     
+    )
+
+    await db.hospitals.create_index(
+        "hospital_id",
+        unique=True
+    )
+
+    await db.hospitals.create_index(
+        "slug",
+        unique=True
+    )
+
+    await db.patients.create_index(
+        [
+            ("hospital_id", 1),
+            ("patient_id", 1)
+        ],
+        unique=True
+    )
     print("mongodb is successfully connected and indexs are ready")
     
 

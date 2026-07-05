@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.repositories.counters import CountersRepository
 from app.repositories.patient import PatientRepository
 from app.repositories.user import UserRepository
-
+from app.services.hospital import HospitalService
 from app.services.patient import PatientServices
 from app.services.auth import AuthService
 from fastapi.security import (
@@ -17,6 +17,7 @@ from app.models.user import UserRole
 from app.repositories.doctor import DoctorRepository
 
 from app.services.doctor import DoctorService
+from app.repositories.hospital import HospitalRepository
 
 security = HTTPBearer()
 
@@ -27,11 +28,13 @@ def get_db(
     return request.app.state.db
 
 
-def get_counters_repository(
-    db: AsyncIOMotorDatabase = Depends(get_db)
-) -> CountersRepository:
 
-    return CountersRepository(db)
+
+def get_user_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> UserRepository:
+
+    return UserRepository(db)
 
 
 def get_patient_repository(
@@ -40,6 +43,39 @@ def get_patient_repository(
 
     return PatientRepository(db)
 
+
+def get_counters_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> CountersRepository:
+
+    return CountersRepository(db)
+
+def get_doctor_repository(
+    db: AsyncIOMotorDatabase = Depends(
+        get_db
+    )
+):
+    return DoctorRepository(db)
+
+def get_hospital_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> HospitalRepository:
+
+    return HospitalRepository(db)
+
+
+
+
+
+def get_auth_service(
+    user_repo: UserRepository = Depends(get_user_repository),
+    counter_repo: CountersRepository = Depends(get_counters_repository) # <-- Isko yahan upar arguments mein daal diya
+) -> AuthService:
+    
+    return AuthService(
+        user_repository=user_repo,
+        counter_repository=counter_repo
+    )
 
 def get_patient_services(
     patient_repository: PatientRepository = Depends(
@@ -55,23 +91,44 @@ def get_patient_services(
         counter_repository
     )
 
-
-def get_user_repository(
-    db: AsyncIOMotorDatabase = Depends(get_db)
-) -> UserRepository:
-
-    return UserRepository(db)
-
-
-def get_auth_service(
-    user_repo: UserRepository = Depends(get_user_repository),
-    counter_repo: CountersRepository = Depends(get_counters_repository) # <-- Isko yahan upar arguments mein daal diya
-) -> AuthService:
-    
-    return AuthService(
+def get_doctor_service(
+    doctor_repo: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+    user_repo: UserRepository = Depends(
+        get_user_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+):
+    return DoctorService(
+        doctor_repository=doctor_repo,
         user_repository=user_repo,
         counter_repository=counter_repo
     )
+
+def get_hospital_service(
+    hospital_repo: HospitalRepository = Depends(
+        get_hospital_repository
+    ),
+    user_repo: UserRepository = Depends(
+        get_user_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+):
+    return HospitalService(
+        hospital_repository=hospital_repo,
+        user_repository=user_repo,
+        counter_repository=counter_repo
+    )
+
+
+
+
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(
@@ -113,6 +170,8 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token"
         )
+
+
 def require_role(
     *allowed_roles: UserRole
 ):
@@ -138,26 +197,5 @@ def require_role(
 
     return role_checker
 
-def get_doctor_repository(
-    db: AsyncIOMotorDatabase = Depends(
-        get_db
-    )
-):
-    return DoctorRepository(db)
 
-def get_doctor_service(
-    doctor_repo: DoctorRepository = Depends(
-        get_doctor_repository
-    ),
-    user_repo: UserRepository = Depends(
-        get_user_repository
-    ),
-    counter_repo: CountersRepository = Depends(
-        get_counters_repository
-    )
-):
-    return DoctorService(
-        doctor_repository=doctor_repo,
-        user_repository=user_repo,
-        counter_repository=counter_repo
-    )
+
