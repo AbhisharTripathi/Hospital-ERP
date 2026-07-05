@@ -20,7 +20,7 @@ from app.schemas.hospital import (
 
 from app.services.auth import AuthService
 from app.services.hospital import HospitalService
-
+from app.services.email import EmailService
 
 router = APIRouter(
     prefix="/auth",
@@ -73,3 +73,26 @@ async def register_hospital(
     return await hospital_service.register_hospital_owner(
         register_data
     )
+
+@router.get("/test-email")
+async def test_email():
+
+    email_service = EmailService()
+
+    await email_service.send_email(
+        subject="Hospital ERP SMTP Test",
+        recipients=["akm22150809@gmail.com"],
+        body="""
+        <h2>Hospital ERP</h2>
+
+        <h3>SMTP Working Successfully 🎉</h3>
+
+        <p>Congratulations!</p>
+
+        <p>Your FastAPI SMTP configuration is working.</p>
+        """
+    )
+
+    return {
+        "message": "Email Sent Successfully"
+    }
