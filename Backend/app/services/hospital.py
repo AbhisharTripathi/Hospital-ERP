@@ -9,18 +9,20 @@ from app.repositories.counters import CountersRepository
 from app.schemas.hospital import HospitalOwnerRegister,HospitalRegisterResponse,SubscriptionPlan,HospitalContact,HospitalSettings
 from app.utils.id_generator import IDGenerator
 from app.utils.slug import generate_slug
-
+from app.services.email import EmailService
 
 class HospitalService:
     def __init__(
         self,
         hospital_repository: HospitalRepository,
         user_repository: UserRepository,
-        counter_repository: CountersRepository
+        counter_repository: CountersRepository,
+        email_service:EmailService
     ):
         self.hospital_repo = hospital_repository
         self.user_repo = user_repository
         self.counter_repo = counter_repository
+        self.email_service = email_service
 
     async def register_hospital_owner(
         self,
@@ -70,7 +72,7 @@ class HospitalService:
             subscription_plan=SubscriptionPlan.FREE,
 
             settings=HospitalSettings(),
-
+            
             contact=HospitalContact(
             phone=register_data.owner_phone,
             email=register_data.owner_email
@@ -89,6 +91,7 @@ class HospitalService:
             email=register_data.owner_email,
             password=hashed_password,
             role=UserRole.SUPER_ADMIN,
+            is_password_set=True,
             contact=UserContact(
                 phone=register_data.owner_phone
             ),
@@ -109,6 +112,16 @@ class HospitalService:
         await self.user_repo.create_user(
             user_model.model_dump(mode="json")
         )
+        try:
+            await self.email_service.send_welcome_email(
+                owner_name=user_model.name.first,
+                hospital_name=hospital_model.hospital_name,
+                hospital_id=hospital_model.hospital_id,
+                user_id=user_model.user_id,
+                email=user_model.email
+            )
+        except Exception as e:
+            print(f"welcome emil failed:{e}")
 
         return HospitalRegisterResponse(
             hospital_id=hospital_id,

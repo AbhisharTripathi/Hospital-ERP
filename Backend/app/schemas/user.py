@@ -1,26 +1,57 @@
-from pydantic import BaseModel, EmailStr
-from app.models.user import UserRole
+from pydantic import BaseModel, EmailStr, Field
+from app.models.user import UserRole,UserStatus
+from typing import Any
 
 
-class UserCreate(BaseModel):
+class EmployeeCreate(BaseModel):
 
-    username: str
+    first_name: str = Field(
+        min_length=2,
+        max_length=50
+    )
+
+    last_name: str | None = None
 
     email: EmailStr
 
-    password: str
+    phone: str | None = None
 
     role: UserRole
 
+    department_id: str | None = None
 
-class UserResponse(BaseModel):
+    department: str | None = None
+
+    
+
+    address: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class EmployeeResponse(BaseModel):
 
     user_id: str
 
-    username: str
+    hospital_id: str
+
+    first_name: str
+
+    last_name: str | None
 
     email: EmailStr
 
+    phone: str | None
+
     role: UserRole
 
+    department: str | None
+
+    status: UserStatus
+
     is_active: bool
+
+
+
+
+
+
