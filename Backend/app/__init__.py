@@ -7,6 +7,9 @@ from .api.v1.auth import router as auth_router
 
 from .api.v1.doctor import router as doctor_router
 from .api.v1.user import router as user_router
+from .core.exceptions import register_exception_handlers
+import logging
+
 def create_app():
 
     @asynccontextmanager
@@ -24,6 +27,12 @@ def create_app():
         title="Hospital ERP",
         lifespan=lifespan # jo decorator hai uske liye lifespan ko function me pass kar diya gaya hai
     )
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    register_exception_handlers(app)
 
     origins = [
         "http://localhost:5173",

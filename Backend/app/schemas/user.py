@@ -52,6 +52,30 @@ class EmployeeResponse(BaseModel):
 
 
 
+class EmployeeUpdate(BaseModel):
 
+    first_name: str | None = Field(
+        default=None,
+        min_length=2,
+        max_length=50
+    )
+
+    last_name: str | None = None
+
+    phone: str | None = None
+
+    address: str | None = None
+
+    role: UserRole | None = None
+
+    department_id: str | None = None
+
+    department: str | None = None
+
+    
+
+    metadata: dict = Field(
+        default_factory=dict
+)
 
 

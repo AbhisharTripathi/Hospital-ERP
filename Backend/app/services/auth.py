@@ -15,7 +15,6 @@ from app.core.security import hash_password
 from app.utils.id_generator import IDGenerator
 from datetime import datetime, timezone
 
-
 class AuthService:
     def __init__(
             self,
@@ -138,6 +137,11 @@ class AuthService:
                 detail="Invitation link is invalid"
             )
 
+        if isinstance(expiry, str):
+            
+            expiry = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
+
+        
         if expiry < datetime.now(timezone.utc):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -104,3 +104,44 @@ class UserRepository:
             }
         )  
     
+
+    async def get_all_by_hospital(
+        self,
+        hospital_id: str
+    ):
+
+        cursor = self.db.users.find(
+            {
+                "hospital_id": hospital_id
+            }
+        )
+
+        return await cursor.to_list(length=None)
+    
+    async def get_by_user_id_and_hospital(
+        self,
+        user_id: str,
+        hospital_id: str
+    ):
+
+        return await self.db.users.find_one(
+            {
+                "user_id": user_id,
+                "hospital_id": hospital_id
+            }
+        )
+    
+    async def update_employee(
+        self,
+        user_id: str,
+        update_data: dict
+    ):
+
+        return await self.db.users.update_one(
+            {
+                "user_id": user_id
+            },
+            {
+                "$set": update_data
+            }
+        )
