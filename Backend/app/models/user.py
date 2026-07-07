@@ -5,15 +5,37 @@ from typing import Any
 
 # pydantic = ODM (object development mapper)
 class UserRole(str, Enum):
+    # Management
     SUPER_ADMIN = "SUPER_ADMIN"
     ADMIN = "ADMIN"
+    HR = "HR"
+
+    # Clinical
     DOCTOR = "DOCTOR"
     NURSE = "NURSE"
-    RECEPTIONIST = "RECEPTIONIST"
-    PHARMACIST = "PHARMACIST"
     LAB_TECHNICIAN = "LAB_TECHNICIAN"
+    PHARMACIST = "PHARMACIST"
+    RADIOLOGIST = "RADIOLOGIST"
+
+    # Front Office
+    RECEPTIONIST = "RECEPTIONIST"
+    CASHIER = "CASHIER"
+
+    # Operations
     ACCOUNTANT = "ACCOUNTANT"
+    STORE_MANAGER = "STORE_MANAGER"
+    HOUSEKEEPING = "HOUSEKEEPING"
+    SECURITY = "SECURITY"
+
+    # External
     PATIENT = "PATIENT"
+    
+
+class UserStatus(str, Enum):
+    INVITED = "INVITED"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    SUSPENDED = "SUSPENDED"
 
 
 class UserName(BaseModel):
@@ -38,7 +60,11 @@ class UserModel(BaseModel):
 
     email: EmailStr
 
-    password: str
+    password: str| None=None
+    is_password_set: bool = False
+
+    invite_token: str | None = None
+    invite_token_expiry: datetime | None = None #for verifying email link
 
     role: UserRole
 
@@ -50,10 +76,11 @@ class UserModel(BaseModel):
 
     employee_code: str | None = None
 
-    contact: UserContact | None = None
+    contact: UserContact | None = None 
 
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    status: UserStatus = UserStatus.ACTIVE
     is_active: bool = True
 
     created_by: str | None = None

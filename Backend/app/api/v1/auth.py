@@ -9,9 +9,10 @@ from app.dependencies import (
 from app.schemas.auth import (
     LoginRequest,
     TokenResponse,
+    SetPasswordRequest
 )
 
-from app.schemas.user import UserCreate
+from app.schemas.user import EmployeeCreate
 
 from app.schemas.hospital import (
     HospitalOwnerRegister,
@@ -20,7 +21,7 @@ from app.schemas.hospital import (
 
 from app.services.auth import AuthService
 from app.services.hospital import HospitalService
-
+from app.services.email import EmailService
 
 router = APIRouter(
     prefix="/auth",
@@ -53,7 +54,7 @@ async def get_me(
 # Old endpoint (temporary)
 @router.post("/register")
 async def register(
-    user: UserCreate,
+    user: EmployeeCreate,
     auth_service: AuthService = Depends(get_auth_service),
 ):
     return await auth_service.register(user)
@@ -72,4 +73,38 @@ async def register_hospital(
 ):
     return await hospital_service.register_hospital_owner(
         register_data
+    )
+
+# @router.get("/test-email")
+# async def test_email():
+
+#     email_service = EmailService()
+
+#     await email_service.send_email(
+#         subject="Hospital ERP SMTP Test",
+#         recipients=["akm22150809@gmail.com"],
+#         body="""
+#         <h2>Hospital ERP</h2>
+
+#         <h3>SMTP Working Successfully 🎉</h3>
+
+#         <p>Congratulations!</p>
+
+#         <p>Your FastAPI SMTP configuration is working.</p>
+#         """
+#     )
+
+#     return {
+#         "message": "Email Sent Successfully"
+#     }
+
+@router.post("/set-password")
+async def set_password(
+    data: SetPasswordRequest,
+    auth_service: AuthService = Depends(
+        get_auth_service
+    )
+):
+    return await auth_service.set_password(
+        data
     )

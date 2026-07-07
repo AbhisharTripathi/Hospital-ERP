@@ -5,7 +5,21 @@ class Settings(BaseSettings):
     DB_NAME: str = "dev_hospital_erp"
     SECRET_KEY: str = "dev_secret_key_for_local_only"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-   
+    
+    
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+
+    MAIL_FROM_NAME: str = "Hospital ERP"  
+    
+    
     model_config = SettingsConfigDict(
         env_file=".env", 
         env_file_encoding="utf-8",

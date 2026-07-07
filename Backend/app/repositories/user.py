@@ -1,3 +1,5 @@
+from app.models.user import UserStatus
+from datetime import datetime, timezone
 class UserRepository:
 
     def __init__(self, db):
@@ -49,3 +51,56 @@ class UserRepository:
                 "$set": updated_data
             }
         )
+    async def get_by_invite_token(
+        self,
+        token: str
+    ):
+
+        return await self.db.users.find_one(
+            {
+                "invite_token": token
+            }
+        )
+    
+    async def update_password(
+        self,
+        user_id: str,
+        hashed_password: str
+    ):
+
+        return await self.db.users.update_one(
+            {
+                "user_id": user_id
+            },
+            {
+                "$set": {
+                    "password": hashed_password,
+                    "is_password_set": True,
+                    "invite_token": None,
+                    "invite_token_expiry": None,
+                    "status": UserStatus.ACTIVE,
+                    "updated_at": datetime.now(timezone.utc)
+                }
+            }
+        )  
+
+    async def update_invite_token(
+        self,
+        user_id: str,
+        token: str,
+        expiry:datetime
+        
+    ):
+
+        return await self.db.users.update_one(
+            {
+                "user_id": user_id
+            },
+            {
+                "$set": {
+                    "invite_token": token,
+                    "invite_token_expiry": expiry
+                }
+            }
+        )  
+    
