@@ -18,6 +18,9 @@ from app.repositories.doctor import DoctorRepository
 
 from app.services.doctor import DoctorService
 from app.repositories.hospital import HospitalRepository
+from app.services.email import EmailService
+from app.services.user import UserService
+
 
 security = HTTPBearer()
 
@@ -77,6 +80,9 @@ def get_auth_service(
         counter_repository=counter_repo
     )
 
+def get_email_service() -> EmailService:
+    return EmailService()
+
 def get_patient_services(
     patient_repository: PatientRepository = Depends(
         get_patient_repository
@@ -100,12 +106,14 @@ def get_doctor_service(
     ),
     counter_repo: CountersRepository = Depends(
         get_counters_repository
-    )
+    ),
+    
 ):
     return DoctorService(
         doctor_repository=doctor_repo,
         user_repository=user_repo,
-        counter_repository=counter_repo
+        counter_repository=counter_repo,
+        
     )
 
 def get_hospital_service(
@@ -117,12 +125,34 @@ def get_hospital_service(
     ),
     counter_repo: CountersRepository = Depends(
         get_counters_repository
+    ),
+    email_service: EmailService = Depends(
+        get_email_service
     )
 ):
     return HospitalService(
         hospital_repository=hospital_repo,
         user_repository=user_repo,
-        counter_repository=counter_repo
+        counter_repository=counter_repo,
+        email_service=email_service
+    )
+
+def get_user_service(
+    user_repo: UserRepository = Depends(
+        get_user_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    ),
+    email_service: EmailService = Depends(
+        get_email_service
+    )
+) -> UserService:
+
+    return UserService(
+        user_repository=user_repo,
+        counter_repository=counter_repo,
+        email_service=email_service
     )
 
 

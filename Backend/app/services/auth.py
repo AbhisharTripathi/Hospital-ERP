@@ -1,14 +1,19 @@
 from fastapi import HTTPException,status
 from app.repositories.user import UserRepository
-from app.schemas.auth import LoginRequest,TokenResponse
+from app.schemas.auth import (
+    LoginRequest,
+    TokenResponse,
+    SetPasswordRequest
+)
 from app.core.security import (
     verify_password,
     create_access_token
 )
-from app.schemas.user import UserCreate
+from app.schemas.user import EmployeeCreate
 from app.models.user import UserModel
 from app.core.security import hash_password
 from app.utils.id_generator import IDGenerator
+from datetime import datetime, timezone
 
 
 class AuthService:
@@ -37,6 +42,11 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="User account is inactive"
+            )
+        if not user.get("is_password_set", False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Please create your password first."
             )
         
         is_valid = verify_password(
@@ -69,7 +79,7 @@ class AuthService:
 
     async def register(
         self,
-        user: UserCreate
+        user: EmployeeCreate
     ):
 
         existing_user = await self.user_repo.get_by_email(
@@ -104,4 +114,43 @@ class AuthService:
         return{
             "user_id":user_id,
             "inserted_id": str(inserted_id)
+        }
+    
+
+    async def set_password(
+        self,
+        data: SetPasswordRequest
+    ):
+        user = await self.user_repo.get_by_invite_token(
+            data.token
+        )
+        if not user:
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid invitation link"
+            )
+        expiry = user.get("invite_token_expiry")
+
+        if not expiry:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invitation link is invalid"
+            )
+
+        if expiry < datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invitation link expired"
+            )
+        hashed_password = hash_password(
+            data.password
+        )
+        await self.user_repo.update_password(
+            user["user_id"],
+            hashed_password
+        )
+        
+        return {
+            "message":"Password created successfully"
         }

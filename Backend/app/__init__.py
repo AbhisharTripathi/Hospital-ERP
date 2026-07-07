@@ -6,7 +6,7 @@ from .api.v1.patient import router as patient_router
 from .api.v1.auth import router as auth_router
 
 from .api.v1.doctor import router as doctor_router
-
+from .api.v1.user import router as user_router
 def create_app():
 
     @asynccontextmanager
@@ -44,7 +44,7 @@ def create_app():
     # app.include_router se hum dono alag alg router ko hum FastAPI app se jod rahe hai 
     
 
-   
+    app.include_router(user_router)
 
     app.include_router(doctor_router)
     
