@@ -7,9 +7,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     
     
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
+    MAIL_USERNAME: str = "example@gmail.com"
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = "example@gmail.com"
 
     MAIL_PORT: int = 587
     MAIL_SERVER: str = "smtp.gmail.com"
