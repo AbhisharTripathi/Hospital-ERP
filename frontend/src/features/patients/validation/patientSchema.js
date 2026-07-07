@@ -12,7 +12,8 @@ export const patientSchema = z.object({
     .string()
     .min(6, "Password must be at least 6 characters")
     .optional()
-    .or(z.literal("")),
+    .or(z.literal(""))
+    .transform((val) => val === "" ? undefined : val),
 
   phone: z
     .string()
@@ -20,16 +21,14 @@ export const patientSchema = z.object({
     .max(15, "Phone number is too long"),
 
   email: z
-    .string()
     .email("Invalid email")
-    .optional()
-    .or(z.literal("")).transform((val) => val === "" ? undefined : val),
+    .optional(),
 
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
 
   dob: z.string(),
 
-  blood_group: z.string().nullable().transform((val) => val === "" || val === null ? undefined : val).optional(),
+  blood_group: z.string().optional(),
 
   address: z.string().optional(),
 
@@ -38,4 +37,9 @@ export const patientSchema = z.object({
   emergency_contact_phone: z.string().optional(),
 
   notes: z.string().optional(),
+})
+.transform((data) => {
+  return Object.fromEntries(
+    Object.entries(data).filter(([key, value]) => value !== "")
+  );
 });
