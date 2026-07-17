@@ -145,3 +145,24 @@ class UserRepository:
                 "$set": update_data
             }
         )
+    
+    async def update_status(
+        self,
+        user_id: str,
+        hospital_id: str,
+        status: UserStatus
+    ):
+
+        return await self.db.users.update_one(
+            {
+                "user_id": user_id,
+                "hospital_id": hospital_id
+            },
+            {
+                "$set": {
+                    "status": status.value,
+                    "is_active": status == UserStatus.ACTIVE,
+                    "updated_at": datetime.now(timezone.utc)
+                }
+            }
+        )

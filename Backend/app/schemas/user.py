@@ -79,3 +79,5 @@ class EmployeeUpdate(BaseModel):
 )
 
 
+class UpdateEmployeeStatus(BaseModel):
+    status: UserStatus

@@ -16,12 +16,13 @@ from app.repositories.counters import CountersRepository
 
 from app.schemas.user import (
     EmployeeCreate,
-    EmployeeResponse,EmployeeUpdate
+    EmployeeResponse,EmployeeUpdate,UpdateEmployeeStatus
 )
 
 from app.services.email import EmailService
 
 from app.utils.id_generator import IDGenerator
+from app.core.permissions import can_assign_role,can_manage_user
 
 class UserService:
 
@@ -36,6 +37,7 @@ class UserService:
         self.counter_repo = counter_repository
         self.email_service = email_service
    
+    
     async def create_employee(
         self,
         current_user,
@@ -51,6 +53,10 @@ class UserService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Email already exists"
             )
+        can_assign_role(
+            current_role=current_user["role"],
+            target_role=employee_data.role
+        )
 
         user_id = await IDGenerator.generate_user_id(
             self.counter_repo
@@ -207,7 +213,10 @@ class UserService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Employee not found"
             )
-
+        can_manage_user(
+            current_role=current_user["role"],
+            target_role=user["role"]
+        )
         update_data = {}
         update_fields = employee_data.model_dump(
             exclude_unset=True
@@ -264,4 +273,39 @@ class UserService:
             is_active=updated_user["is_active"]
         )
     
+    async def update_employee_status(
+        self,
+        current_user,
+        user_id: str,
+        status_data: UpdateEmployeeStatus
+    ):
     
+        user = await self.user_repo.get_by_user_id_and_hospital(
+            user_id=user_id,
+            hospital_id=current_user["hospital_id"]
+        )
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Employee not found"
+            )
+
+        can_manage_user(
+            current_role=current_user["role"],
+            target_role=user["role"]
+        )
+
+        await self.user_repo.update_status(
+            user_id=user_id,
+            hospital_id=current_user["hospital_id"],
+            status=status_data.status
+        )
+
+        return {
+            "message": (
+                f"Employee status updated to "
+                f"{status_data.status}"
+            )
+        }
+        

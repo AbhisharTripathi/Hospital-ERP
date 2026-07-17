@@ -8,7 +8,7 @@ from app.models.user import UserRole
 from app.schemas.user import (
     EmployeeCreate,
     EmployeeResponse,
-    EmployeeUpdate
+    EmployeeUpdate,UpdateEmployeeStatus
 )
 from app.services.user import UserService
 
@@ -103,4 +103,29 @@ async def update_employee(
         current_user=current_user,
         user_id=user_id,
         employee_data=employee_data
+    )
+
+
+@router.patch(
+    "/{user_id}/status",
+    status_code=status.HTTP_200_OK
+)
+async def update_employee_status(
+    user_id: str,
+    status_data: UpdateEmployeeStatus,
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN
+        )
+    ),
+    user_service: UserService = Depends(
+        get_user_service
+    )
+):
+
+    return await user_service.update_employee_status(
+        current_user=current_user,
+        user_id=user_id,
+        status_data=status_data
     )

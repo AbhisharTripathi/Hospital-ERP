@@ -31,7 +31,8 @@ from app.services.doctor import DoctorService
 from app.services.hospital import HospitalService
 from app.services.user import UserService
 from app.services.email import EmailService
-
+from app.repositories.department import DepartmentRepository
+from app.services.department import DepartmentService
 
 security = HTTPBearer()
 
@@ -84,7 +85,11 @@ def get_hospital_repository(
 ) -> HospitalRepository:
 
     return HospitalRepository(db)
+def get_department_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> DepartmentRepository:
 
+    return DepartmentRepository(db)
 
 # ==========================
 # Services
@@ -143,6 +148,19 @@ def get_doctor_service(
         counter_repository=counter_repo
     )
 
+def get_department_service(
+    department_repo: DepartmentRepository = Depends(
+        get_department_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+) -> DepartmentService:
+
+    return DepartmentService(
+        department_repository=department_repo,
+        counter_repository=counter_repo
+    )
 
 def get_hospital_service(
     hospital_repo: HospitalRepository = Depends(
@@ -156,6 +174,9 @@ def get_hospital_service(
     ),
     email_service: EmailService = Depends(
         get_email_service
+    ),
+    department_service: DepartmentService = Depends(
+        get_department_service
     )
 ) -> HospitalService:
 
@@ -163,7 +184,8 @@ def get_hospital_service(
         hospital_repository=hospital_repo,
         user_repository=user_repo,
         counter_repository=counter_repo,
-        email_service=email_service
+        email_service=email_service,
+        department_service=department_service
     )
 
 
@@ -184,6 +206,8 @@ def get_user_service(
         counter_repository=counter_repo,
         email_service=email_service
     )
+
+
 
 
 # ==========================

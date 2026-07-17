@@ -9,6 +9,7 @@ from .api.v1.doctor import router as doctor_router
 from .api.v1.user import router as user_router
 from .core.exceptions import register_exception_handlers
 import logging
+from .api.v1.department import router as department_router
 
 def create_app():
 
@@ -56,5 +57,6 @@ def create_app():
     app.include_router(user_router)
 
     app.include_router(doctor_router)
+    app.include_router(department_router)
     
     return app
