@@ -1,422 +1,170 @@
-// WelcomePage.jsx
 import { Link } from "react-router-dom";
 import {
-  Activity,
-  CalendarDays,
-  Users,
-  ShieldCheck,
   Stethoscope,
+  Users,
+  CalendarDays,
+  ShieldCheck,
   ArrowRight,
 } from "lucide-react";
 
-export default function Welcome() {
+export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-
+    <div className="min-h-screen bg-slate-50">
       {/* Navbar */}
-      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-          {/* Logo */}
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 text-white p-2 rounded-xl">
-              <Stethoscope size={26} />
+            <div className="rounded-xl bg-blue-600 p-2 text-white">
+              <Stethoscope size={24} />
             </div>
 
             <div>
-              <h1 className="font-bold text-xl text-slate-800">
+              <h1 className="text-lg font-bold text-slate-900">
                 MediCore ERP
               </h1>
+
               <p className="text-xs text-slate-500">
-                Hospital Management System
+                Hospital Management
               </p>
             </div>
           </div>
 
-
-          {/* Links */}
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
-            <a className="hover:text-blue-600">
-              Features
-            </a>
-
-            <a className="hover:text-blue-600">
-              Departments
-            </a>
-
-            <a className="hover:text-blue-600">
-              Doctors
-            </a>
-
-            <a className="hover:text-blue-600">
-              Contact
-            </a>
-          </div>
-
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-
-            <Link to="/auth/login" className="
-              hidden sm:block
-              px-5 py-2
-              text-blue-600
-              hover:bg-blue-5
-              rounded-lg
-            ">
+          <div className="flex gap-3">
+            <Link
+              to="/auth/login"
+              className="rounded-lg px-4 py-2 text-slate-700 hover:bg-slate-100"
+            >
               Login
             </Link>
 
-            <Link to="/auth/register" className="btn-primary">
-            Register your Hospital
+            <Link
+              to="/auth/register"
+              className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+            >
+              Register Hospital
             </Link>
-
           </div>
-
-        </nav>
+        </div>
       </header>
 
-
-
       {/* Hero */}
-      <main className="max-w-7xl mx-auto px-6">
-
-        <section className="
-          grid
-          md:grid-cols-2
-          gap-12
-          items-center
-          py-20
-        ">
-
-
-          {/* Text */}
+      <main className="mx-auto max-w-7xl px-6 py-20">
+        <div className="grid items-center gap-16 lg:grid-cols-2">
+          {/* Left */}
           <div>
+            <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
+              Complete Hospital ERP
+            </span>
 
-            <div className="
-              inline-flex
-              items-center
-              gap-2
-              bg-blue-100
-              text-blue-700
-              px-4 py-2
-              rounded-full
-              text-sm
-              mb-6
-            ">
-              <Activity size={18}/>
-              Smart Healthcare Management
-            </div>
-
-
-            <h2 className="
-              text-5xl
-              font-bold
-              leading-tight
-              text-slate-900
-            ">
-              Manage your hospital
-              <span className="text-blue-600">
-                {" "}smarter
-              </span>
+            <h2 className="mt-6 text-5xl font-bold leading-tight text-slate-900">
+              One Platform.
+              <br />
+              Every Hospital Operation.
             </h2>
 
-
-            <p className="
-              mt-6
-              text-lg
-              text-slate-600
-              max-w-xl
-            ">
-              A complete Hospital ERP platform that connects
-              doctors, patients, departments and administration
-              in one powerful system.
+            <p className="mt-6 max-w-xl text-lg text-slate-600">
+              Manage patients, appointments, billing, pharmacy,
+              laboratory and staff from a single secure platform.
             </p>
 
-
             <div className="mt-8 flex gap-4">
+              <Link
+                to="/auth/register"
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+              >
+                Get Started
+                <ArrowRight size={18} />
+              </Link>
 
-              <button className="
-                flex items-center gap-2
-                bg-blue-600
-                text-white
-                px-6 py-3
-                rounded-xl
-                hover:bg-blue-700
-              ">
-                Start Managing
-                <ArrowRight size={18}/>
-              </button>
-
-
-              <button className="
-                px-6 py-3
-                rounded-xl
-                border
-                border-slate-300
-                hover:bg-white
-              ">
-                Learn More
-              </button>
-
+              <Link
+                to="/auth/login"
+                className="rounded-xl border border-slate-300 px-6 py-3 hover:bg-white"
+              >
+                Login
+              </Link>
             </div>
-
-
-            {/* Stats */}
-            <div className="
-              mt-12
-              grid
-              grid-cols-3
-              gap-6
-            ">
-
-              <div>
-                <h3 className="text-3xl font-bold text-slate-900">
-                  24/7
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Support
-                </p>
-              </div>
-
-
-              <div>
-                <h3 className="text-3xl font-bold text-slate-900">
-                  50+
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Departments
-                </p>
-              </div>
-
-
-              <div>
-                <h3 className="text-3xl font-bold text-slate-900">
-                  99%
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Reliability
-                </p>
-              </div>
-
-            </div>
-
           </div>
 
+          {/* Right */}
+          <div className="rounded-3xl border bg-white p-8 shadow-lg">
+            <h3 className="mb-6 text-xl font-semibold">
+              Hospital Modules
+            </h3>
 
+            <div className="grid gap-4">
+              <Module
+                icon={<Users size={20} />}
+                title="Patient Management"
+              />
 
-          {/* Illustration */}
-          <div className="
-            relative
-          ">
+              <Module
+                icon={<CalendarDays size={20} />}
+                title="Appointments"
+              />
 
-            <div className="
-              bg-white
-              rounded-3xl
-              shadow-xl
-              p-8
-              border
-            ">
-
-
-              <div className="
-                grid
-                grid-cols-2
-                gap-5
-              ">
-
-                <Feature
-                  icon={<Users/>}
-                  title="Patients"
-                  value="12,500+"
-                />
-
-                <Feature
-                  icon={<CalendarDays/>}
-                  title="Appointments"
-                  value="850/day"
-                />
-
-
-                <Feature
-                  icon={<ShieldCheck/>}
-                  title="Security"
-                  value="Protected"
-                />
-
-                <Feature
-                  icon={<Activity/>}
-                  title="Reports"
-                  value="Realtime"
-                />
-
-              </div>
-
-
-              <div className="
-                mt-8
-                bg-gradient-to-r
-                from-blue-600
-                to-cyan-500
-                rounded-2xl
-                p-6
-                text-white
-              ">
-
-                <h3 className="text-xl font-semibold">
-                  Complete Hospital Control
-                </h3>
-
-                <p className="mt-2 text-blue-100">
-                  OPD, IPD, pharmacy, billing,
-                  laboratory and staff management.
-                </p>
-
-              </div>
-
+              <Module
+                icon={<ShieldCheck size={20} />}
+                title="Billing & Security"
+              />
             </div>
 
+            <div className="mt-8 rounded-2xl bg-blue-600 p-6 text-white">
+              <h4 className="text-lg font-semibold">
+                Everything Connected
+              </h4>
 
-            {/* Floating badge */}
-            <div className="
-              absolute
-              -bottom-5
-              -left-5
-              bg-white
-              shadow-lg
-              rounded-xl
-              px-5
-              py-4
-            ">
-
-              <p className="text-sm text-slate-500">
-                Active Doctors
+              <p className="mt-2 text-blue-100">
+                Reception • Doctors • Pharmacy • Laboratory •
+                Billing • Administration
               </p>
-
-              <p className="text-2xl font-bold text-blue-600">
-                250+
-              </p>
-
             </div>
-
           </div>
-
-
-        </section>
-
+        </div>
 
         {/* Features */}
-        <section className="pb-20">
+        <section className="mt-24 grid gap-6 md:grid-cols-3">
+          <Feature
+            title="Fast Registration"
+            text="Register patients and staff in seconds."
+          />
 
-          <h2 className="
-            text-3xl
-            font-bold
-            text-center
-            text-slate-900
-          ">
-            Everything your hospital needs
-          </h2>
+          <Feature
+            title="Centralized Records"
+            text="Access patient information from one place."
+          />
 
-
-          <div className="
-            mt-10
-            grid
-            md:grid-cols-3
-            gap-6
-          ">
-
-
-            <Card
-              icon={<Users/>}
-              title="Patient Management"
-              text="Complete patient records, history and appointments."
-            />
-
-
-            <Card
-              icon={<CalendarDays/>}
-              title="Smart Scheduling"
-              text="Manage doctors, rooms and appointments easily."
-            />
-
-
-            <Card
-              icon={<ShieldCheck/>}
-              title="Secure Data"
-              text="Protect sensitive medical information."
-            />
-
-
-          </div>
-
+          <Feature
+            title="Secure & Reliable"
+            text="Role-based access with secure authentication."
+          />
         </section>
-
-
       </main>
-
     </div>
   );
 }
 
-
-
-function Feature({icon, title, value}) {
+function Module({ icon, title }) {
   return (
-    <div className="
-      p-5
-      rounded-2xl
-      bg-slate-50
-    ">
-      <div className="text-blue-600">
+    <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
+      <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
         {icon}
       </div>
 
-      <p className="mt-3 text-sm text-slate-500">
+      <span className="font-medium text-slate-800">
         {title}
-      </p>
-
-      <h3 className="text-xl font-bold">
-        {value}
-      </h3>
+      </span>
     </div>
   );
 }
 
-
-
-function Card({icon,title,text}) {
+function Feature({ title, text }) {
   return (
-    <div className="
-      bg-white
-      p-6
-      rounded-2xl
-      shadow-sm
-      border
-      hover:shadow-md
-      transition
-    ">
+    <div className="rounded-2xl border bg-white p-6">
+      <h3 className="text-lg font-semibold">{title}</h3>
 
-      <div className="
-        text-blue-600
-        mb-4
-      ">
-        {icon}
-      </div>
-
-      <h3 className="
-        font-semibold
-        text-lg
-      ">
-        {title}
-      </h3>
-
-      <p className="
-        mt-2
-        text-slate-600
-      ">
+      <p className="mt-2 text-slate-600">
         {text}
       </p>
-
     </div>
   );
 }

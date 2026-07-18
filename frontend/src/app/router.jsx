@@ -20,7 +20,8 @@ import AdminDashboard from "../features/admin/components/AdminDashboard.jsx";
 import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
 import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
 
-import OwnerRegisterPage from "@/features/owner/pages/OwnerRegisterPage.jsx"
+import OwnerRegisterPage from "@/features/owner/pages/OwnerRegisterPage2.jsx"
+import UserSetPasswordPage from "@/features/auth/pages/UserSetPasswordPage.jsx"
 
 
 
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
                         path: "register",
                         element: <OwnerRegisterPage />
                     },
+                    {
+                        path: "set-password",
+                        element: <UserSetPasswordPage />
+                    }
                 ]
             },
             {

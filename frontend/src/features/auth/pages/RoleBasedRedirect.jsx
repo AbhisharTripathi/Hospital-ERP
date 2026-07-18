@@ -13,6 +13,8 @@ const RoleBasedRedirect = () => {
       return <Navigate to="/receptionist" replace />;
     case "ADMIN":
       return <Navigate to="/admin" replace />;
+    case "SUPER_ADMIN":
+      return <Navigate to="/admin" replace />;
     default:
       return <Navigate to="/welcome" replace />;
   }

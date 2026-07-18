@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from "@/components/forms/FormField.jsx";
 import Input from "@/components/forms/Input.jsx";
 import Select from "@/components/forms/Select.jsx";
+import Textarea from "@/components/forms/Textarea.jsx";
 import SubmitButton from "@/components/forms/SubmitButton.jsx";
 
 function UserRegisterPage() {
@@ -17,20 +18,63 @@ function UserRegisterPage() {
         register,
         handleSubmit,
         formState: { errors, isSubmitting }
-    } = useForm();
+    } = useForm({
+        defaultValues: {
+            metadata: "{}"
+        }
+    });
+
+    const departments = [
+        "CARDIOLOGY",
+        "NEUROLOGY",
+        "ONCOLOGY",
+        "PEDS",
+        "RADIOLOGY",
+        "SURGERY",
+        "ANESTHESIOLOGY",
+        "ORTHEPEDICS",
+        "Dermatology",
+        "GASTROENTEROLOGY",
+        "GYNECOLOGY",
+        "ENT",
+        "OTHER"
+    ];
 
     const onSubmit = async (data) => {
         try {
             setServerError(null);
-            const response = await registerUser(data);
-            console.log(`${data.username} registered with user id ${response.user_id}`);
+            let metadata = {};
+
+            if (data.metadata) {
+                try {
+                    metadata = JSON.parse(data.metadata);
+                } catch (parseError) {
+                    setServerError("Metadata must be valid JSON.");
+                    return;
+                }
+            }
+
+            const payload = {
+                first_name: data.first_name,
+                last_name: data.last_name,
+                email: data.email,
+                phone: data.phone,
+                role: data.role,
+                department_id: data.department_id,
+                department: data.department,
+                address: data.address,
+                metadata,
+            };
+
+            const response = await registerUser(payload);
+            console.log(`${data.first_name} registered with user id ${response.user_id}`);
             navigate("/");
         } catch(err) {
             console.error(err);
-            serverError(
+            setServerError(
                 err?.response?.data?.detail ||
                 "Invalid credentials"
-            )
+            );
         }
     }
 
@@ -51,11 +95,20 @@ function UserRegisterPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-8" >
                 <FormField
-                    label="Username"
+                    label="First Name"
                     required
-                    error={errors.username}
+                    error={errors.first_name}
                 >
-                    <Input {...register("username")} />
+                    <Input
+                        {...register("first_name", { required: "First name is required" })}
+                    />
+                </FormField>
+
+                <FormField
+                    label="Last Name"
+                    error={errors.last_name}
+                >
+                    <Input {...register("last_name")} />
                 </FormField>
 
                 <FormField
@@ -63,15 +116,14 @@ function UserRegisterPage() {
                     required
                     error={errors.email}
                 >
-                    <Input type="email" {...register("email")} />
+                    <Input type="email" {...register("email", { required: "Email is required" })} />
                 </FormField>
 
                 <FormField
-                    label="Password"
-                    required
-                    error={errors.password}
+                    label="Phone"
+                    error={errors.phone}
                 >
-                    <Input type="password" {...register("password")} />
+                    <Input {...register("phone")} />
                 </FormField>
 
                 <FormField
@@ -79,12 +131,52 @@ function UserRegisterPage() {
                     required
                     error={errors.role}
                 >
-                    <Select {...register("role")}>
+                    <Select {...register("role", { required: "Role is required" })}>
                         <option value="">Select Role</option>
+                        <option value="SUPER_ADMIN">Super Admin</option>
+                        <option value="ADMIN">Admin</option>
                         <option value="DOCTOR">Doctor</option>
                         <option value="RECEPTIONIST">Receptionist</option>
-                        <option value="ADMIN">Admin</option>
                     </Select>
+                </FormField>
+
+                <FormField
+                    label="Department ID"
+                    error={errors.department_id}
+                >
+                    <Input {...register("department_id")} />
+                </FormField>
+
+                <FormField
+                    label="Department"
+                    error={errors.department}
+                >
+                    <Select {...register("department")} >
+                        <option value="">Select</option>
+                        {
+                            departments.map((dept) => (
+                                <option key={dept} value={dept}>{dept}</option>
+                            ))
+                        }
+                    </Select>
+                </FormField>
+
+                <FormField
+                    label="Address"
+                    error={errors.address}
+                >
+                    <Textarea rows={4} {...register("address")} />
+                </FormField>
+
+                <FormField
+                    label="Metadata (JSON)"
+                    error={errors.metadata}
+                >
+                    <Textarea
+                        rows={4}
+                        placeholder='e.g. { "additionalProp1": {} }'
+                        {...register("metadata")}
+                    />
                 </FormField>
 
                 {serverError && (

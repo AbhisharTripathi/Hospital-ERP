@@ -15,3 +15,12 @@ export const getCurrentUser = async () => {
 
     return response.data;
   };
+
+
+export const setPassword = async (token, password) => {
+    const response = await api.post(
+        "/auth/set-password",
+        { token, password }
+    );
+    return response.data;
+};
