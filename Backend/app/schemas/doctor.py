@@ -5,46 +5,42 @@ from app.models.patient import Gender
 
 from app.models.doctor import DoctorStatus
 
+
 class DoctorCreate(BaseModel):
 
-    first_name: str= Field(
-        min_length=2,
-        max_length=55
+    user_id: str
+
+    department_id: str
+
+    license_number: str = Field(
+        min_length=5,
+        max_length=50
     )
-    last_name: Optional[str] = None
-
-    email: EmailStr
-    phone: str = Field(
-        min_length=4,
-        max_length=15
-    )
-
-    gender: Gender
-
-    specialization: str
 
     qualification: str
+
+    specialization: str
 
     experience_years: int = 0
 
     consultation_fee: float = 0
 
-    password: str
+class UpdateDoctorStatus(BaseModel):
+    status: DoctorStatus   
 
 class DoctorUpdate(BaseModel):
 
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
+    department_id: str | None = None
 
-    phone: Optional[str] = None
+    qualification: str | None = None
 
-    specialization: Optional[str] = None
+    specialization: str | None = None
 
-    qualification: Optional[str] = None
+    experience_years: int | None = None
 
-    experience_years: Optional[int] = None
+    consultation_fee: float | None = None
 
-    consultation_fee: Optional[float] = None
+    joining_date: datetime | None = None
 
 class DoctorResponse(BaseModel):
 
@@ -59,7 +55,7 @@ class DoctorResponse(BaseModel):
     phone: str
 
     gender: str
-
+    department_id: str
     specialization: str
 
     qualification: str
@@ -69,6 +65,7 @@ class DoctorResponse(BaseModel):
     consultation_fee: float
 
     status: DoctorStatus
-
+    joining_date: datetime
+     
     created_at: datetime
     updated_at: datetime

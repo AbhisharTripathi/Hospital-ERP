@@ -10,6 +10,7 @@ from app.schemas.hospital import HospitalOwnerRegister,HospitalRegisterResponse,
 from app.utils.id_generator import IDGenerator
 from app.utils.slug import generate_slug
 from app.services.email import EmailService
+from app.services.department import DepartmentService
 
 class HospitalService:
     def __init__(
@@ -17,12 +18,14 @@ class HospitalService:
         hospital_repository: HospitalRepository,
         user_repository: UserRepository,
         counter_repository: CountersRepository,
-        email_service:EmailService
+        email_service:EmailService,
+        department_service:DepartmentService
     ):
         self.hospital_repo = hospital_repository
         self.user_repo = user_repository
         self.counter_repo = counter_repository
         self.email_service = email_service
+        self.department_service=department_service
 
     async def register_hospital_owner(
         self,
@@ -112,6 +115,14 @@ class HospitalService:
         await self.user_repo.create_user(
             user_model.model_dump(mode="json")
         )
+        
+        
+        await self.department_service.create_default_departments(
+            hospital_id=hospital_model.hospital_id,
+            created_by=user_model.user_id
+        )
+        
+        
         try:
             await self.email_service.send_welcome_email(
                 owner_name=user_model.name.first,

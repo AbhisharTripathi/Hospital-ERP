@@ -1,28 +1,51 @@
-from fastapi import Request,HTTPException, status,Depends
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from fastapi import (
+    Request,
+    HTTPException,
+    status,
+    Depends
+)
 
-from app.repositories.counters import CountersRepository
-from app.repositories.patient import PatientRepository
-from app.repositories.user import UserRepository
-from app.services.hospital import HospitalService
-from app.services.patient import PatientServices
-from app.services.auth import AuthService
 from fastapi.security import (
     HTTPBearer,
     HTTPAuthorizationCredentials
 )
 
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from app.core.security import decode_token
-from app.models.user import UserRole
+
+from app.models.user import (
+    UserRole,
+    UserStatus
+)
+
+from app.repositories.user import UserRepository
+from app.repositories.patient import PatientRepository
+from app.repositories.counters import CountersRepository
 from app.repositories.doctor import DoctorRepository
-
-from app.services.doctor import DoctorService
 from app.repositories.hospital import HospitalRepository
-from app.services.email import EmailService
+
+from app.services.auth import AuthService
+from app.services.patient import PatientServices
+from app.services.doctor import DoctorService
+from app.services.hospital import HospitalService
 from app.services.user import UserService
+from app.services.email import EmailService
+from app.repositories.department import DepartmentRepository
+from app.services.department import DepartmentService
+from app.repositories.doctor_schedule import (
+    DoctorScheduleRepository
+)
 
-
+from app.services.doctor_schedule import (
+    DoctorScheduleService
+)
 security = HTTPBearer()
+
+
+# ==========================
+# Database
+# ==========================
 
 def get_db(
     request: Request
@@ -31,7 +54,9 @@ def get_db(
     return request.app.state.db
 
 
-
+# ==========================
+# Repositories
+# ==========================
 
 def get_user_repository(
     db: AsyncIOMotorDatabase = Depends(get_db)
@@ -53,35 +78,54 @@ def get_counters_repository(
 
     return CountersRepository(db)
 
+
 def get_doctor_repository(
-    db: AsyncIOMotorDatabase = Depends(
-        get_db
-    )
-):
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> DoctorRepository:
+
     return DoctorRepository(db)
+
+def get_doctor_schedule_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> DoctorScheduleRepository:
+
+    return DoctorScheduleRepository(db)
 
 def get_hospital_repository(
     db: AsyncIOMotorDatabase = Depends(get_db)
 ) -> HospitalRepository:
 
     return HospitalRepository(db)
+def get_department_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> DepartmentRepository:
+
+    return DepartmentRepository(db)
 
 
+# ==========================
+# Services
+# ==========================
 
+def get_email_service() -> EmailService:
+
+    return EmailService()
 
 
 def get_auth_service(
-    user_repo: UserRepository = Depends(get_user_repository),
-    counter_repo: CountersRepository = Depends(get_counters_repository) # <-- Isko yahan upar arguments mein daal diya
+    user_repo: UserRepository = Depends(
+        get_user_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
 ) -> AuthService:
-    
+
     return AuthService(
         user_repository=user_repo,
         counter_repository=counter_repo
     )
 
-def get_email_service() -> EmailService:
-    return EmailService()
 
 def get_patient_services(
     patient_repository: PatientRepository = Depends(
@@ -97,23 +141,80 @@ def get_patient_services(
         counter_repository
     )
 
+
 def get_doctor_service(
+
     doctor_repo: DoctorRepository = Depends(
         get_doctor_repository
     ),
+
     user_repo: UserRepository = Depends(
         get_user_repository
     ),
+
+    department_repo: DepartmentRepository = Depends(
+        get_department_repository
+    ),
+
     counter_repo: CountersRepository = Depends(
         get_counters_repository
     ),
-    
+
+    email_service: EmailService = Depends(
+        get_email_service
+    )
+
 ):
+
     return DoctorService(
+
         doctor_repository=doctor_repo,
+
         user_repository=user_repo,
+
+        department_repository=department_repo,
+
         counter_repository=counter_repo,
-        
+
+        email_service=email_service
+    )
+
+def get_doctor_schedule_service(
+
+    schedule_repo: DoctorScheduleRepository = Depends(
+        get_doctor_schedule_repository
+    ),
+
+    doctor_repo: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+) -> DoctorScheduleService:
+
+    return DoctorScheduleService(
+
+        schedule_repository=schedule_repo,
+
+        doctor_repository=doctor_repo,
+
+        counter_repository=counter_repo
+    )
+def get_department_service(
+    department_repo: DepartmentRepository = Depends(
+        get_department_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+) -> DepartmentService:
+
+    return DepartmentService(
+        department_repository=department_repo,
+        counter_repository=counter_repo
     )
 
 def get_hospital_service(
@@ -128,14 +229,20 @@ def get_hospital_service(
     ),
     email_service: EmailService = Depends(
         get_email_service
+    ),
+    department_service: DepartmentService = Depends(
+        get_department_service
     )
-):
+) -> HospitalService:
+
     return HospitalService(
         hospital_repository=hospital_repo,
         user_repository=user_repo,
         counter_repository=counter_repo,
-        email_service=email_service
+        email_service=email_service,
+        department_service=department_service
     )
+
 
 def get_user_service(
     user_repo: UserRepository = Depends(
@@ -158,7 +265,9 @@ def get_user_service(
 
 
 
-
+# ==========================
+# Authentication
+# ==========================
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(
@@ -171,29 +280,9 @@ async def get_current_user(
 
     token = credentials.credentials
 
+    # Token decode
     try:
-
         payload = decode_token(token)
-
-        user_id = payload.get("user_id")
-
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
-
-        user = await user_repo.get_by_user_id(
-            user_id
-        )
-
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found"
-            )
-
-        return user
 
     except Exception:
         raise HTTPException(
@@ -201,23 +290,61 @@ async def get_current_user(
             detail="Invalid or expired token"
         )
 
+    user_id = payload.get("user_id")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+
+    user = await user_repo.get_by_user_id(
+        user_id
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+
+    return user
+
+
+# ==========================
+# Role Authorization
+# ==========================
 
 def require_role(
     *allowed_roles: UserRole
 ):
 
     async def role_checker(
-        current_user = Depends(
+        current_user: dict = Depends(
             get_current_user
         )
     ):
 
-        user_role = current_user.get(
+        if not current_user.get(
+            "is_active",
+            True
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is inactive"
+            )
+
+        if current_user.get(
+            "status"
+        ) != UserStatus.ACTIVE:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is not active"
+            )
+
+        if current_user.get(
             "role"
-        )
-
-        if user_role not in allowed_roles:
-
+        ) not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You do not have permission"
@@ -226,6 +353,3 @@ def require_role(
         return current_user
 
     return role_checker
-
-
-

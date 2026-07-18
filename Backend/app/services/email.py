@@ -69,11 +69,13 @@ class EmailService:
             recipients=[email],
             body=body
         )
+    
+    
     async def send_invitation_email(
-    self,
-    employee_name: str,
-    email: str,
-    invite_token: str
+        self,
+        employee_name: str,
+        email: str,
+        invite_token: str
     ):
         invite_link = (
             f"http://localhost:5173/set-password"
@@ -118,6 +120,70 @@ class EmailService:
         """
 
         await self.send_email(
+            subject=subject,
+            recipients=[email],
+            body=body
+        )
+
+    async def send_doctor_profile_created_email(
+        self,
+        doctor_name: str,
+        email: str,
+        doctor_id: str,
+        department_name: str,
+        specialization: str
+    ):
+
+        subject = "Doctor Profile Activated - Hospital ERP"
+
+        body = f"""
+        <html>
+        <body>
+
+            <h2>Welcome Dr. {doctor_name}</h2>
+
+            <p>
+                Your Doctor Profile has been successfully created.
+            </p>
+
+            <table border="1" cellpadding="8" cellspacing="0">
+
+                <tr>
+                    <td><b>Doctor ID</b></td>
+                    <td>{doctor_id}</td>
+                </tr>
+
+                <tr>
+                    <td><b>Department</b></td>
+                    <td>{department_name}</td>
+                </tr>
+
+                <tr>
+                    <td><b>Specialization</b></td>
+                    <td>{specialization}</td>
+                </tr>
+
+            </table>
+
+            <br>
+
+            <p>
+                You can now log in to Hospital ERP and start using your doctor dashboard.
+            </p>
+
+            <br>
+
+            <p>
+                Regards,<br>
+                Hospital ERP Team ❤️
+            </p>
+
+        </body>
+        </html>
+        """
+
+        await self.send_email(
+            
             subject=subject,
             recipients=[email],
             body=body
