@@ -33,7 +33,13 @@ from app.services.user import UserService
 from app.services.email import EmailService
 from app.repositories.department import DepartmentRepository
 from app.services.department import DepartmentService
+from app.repositories.doctor_schedule import (
+    DoctorScheduleRepository
+)
 
+from app.services.doctor_schedule import (
+    DoctorScheduleService
+)
 security = HTTPBearer()
 
 
@@ -79,6 +85,11 @@ def get_doctor_repository(
 
     return DoctorRepository(db)
 
+def get_doctor_schedule_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> DoctorScheduleRepository:
+
+    return DoctorScheduleRepository(db)
 
 def get_hospital_repository(
     db: AsyncIOMotorDatabase = Depends(get_db)
@@ -90,6 +101,7 @@ def get_department_repository(
 ) -> DepartmentRepository:
 
     return DepartmentRepository(db)
+
 
 # ==========================
 # Services
@@ -131,23 +143,66 @@ def get_patient_services(
 
 
 def get_doctor_service(
+
     doctor_repo: DoctorRepository = Depends(
         get_doctor_repository
     ),
+
     user_repo: UserRepository = Depends(
         get_user_repository
     ),
+
+    department_repo: DepartmentRepository = Depends(
+        get_department_repository
+    ),
+
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    ),
+
+    email_service: EmailService = Depends(
+        get_email_service
+    )
+
+):
+
+    return DoctorService(
+
+        doctor_repository=doctor_repo,
+
+        user_repository=user_repo,
+
+        department_repository=department_repo,
+
+        counter_repository=counter_repo,
+
+        email_service=email_service
+    )
+
+def get_doctor_schedule_service(
+
+    schedule_repo: DoctorScheduleRepository = Depends(
+        get_doctor_schedule_repository
+    ),
+
+    doctor_repo: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
     counter_repo: CountersRepository = Depends(
         get_counters_repository
     )
-) -> DoctorService:
 
-    return DoctorService(
+) -> DoctorScheduleService:
+
+    return DoctorScheduleService(
+
+        schedule_repository=schedule_repo,
+
         doctor_repository=doctor_repo,
-        user_repository=user_repo,
+
         counter_repository=counter_repo
     )
-
 def get_department_service(
     department_repo: DepartmentRepository = Depends(
         get_department_repository

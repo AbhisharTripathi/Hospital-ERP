@@ -285,4 +285,12 @@ class DepartmentService:
             department_id=department_id,
             hospital_id=current_user["hospital_id"]
         )
+        if not department:
+            raise HTTPException(status_code=404, detail="Department not found")
+        if isinstance(department, dict):
+            # अगर यह एक dict (डिक्शनरी) है:
+            department["is_active"] = status_data.is_active
+        else:
+            # अगर यह एक डेटाबेस मॉडल ऑब्जेक्ट है:
+            department.is_active = status_data.is_activ
         return department

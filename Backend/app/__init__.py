@@ -10,7 +10,9 @@ from .api.v1.user import router as user_router
 from .core.exceptions import register_exception_handlers
 import logging
 from .api.v1.department import router as department_router
-
+from .api.v1.doctor_schedule import (
+    router as doctor_schedule_router
+)
 def create_app():
 
     @asynccontextmanager
@@ -58,5 +60,7 @@ def create_app():
 
     app.include_router(doctor_router)
     app.include_router(department_router)
+    app.include_router(doctor_schedule_router)
+    
     
     return app

@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
-    Depends
+    Depends,
+    status
 )
 
 from app.dependencies import (
@@ -10,95 +11,195 @@ from app.dependencies import (
 
 from app.models.user import UserRole
 
-from app.services.doctor import DoctorService
-
 from app.schemas.doctor import (
     DoctorCreate,
     DoctorUpdate,
-    DoctorResponse
+    DoctorResponse,
+    UpdateDoctorStatus
 )
+
+from app.services.doctor import DoctorService
+
 
 router = APIRouter(
     prefix="/doctors",
     tags=["Doctors"]
 )
+
+
+# -------------------- Create Doctor Profile -------------------- #
+
 @router.post(
-    "",
-    response_model=dict
+    "/profile",
+    response_model=DoctorResponse,
+    status_code=status.HTTP_201_CREATED
 )
-async def create_doctor(
-    doctor: DoctorCreate,
-    doctor_service: DoctorService = Depends(
-        get_doctor_service
-    ),
-    current_user=Depends(
-        require_role(UserRole.ADMIN)
-    )
-):
-
-    return await doctor_service.create_doctor(
-        doctor
-    )
-@router.get(
-    "",
-    response_model=list[DoctorResponse]
-)
-async def get_all_doctors(
-    doctor_service: DoctorService = Depends(
-        get_doctor_service
-    )
-):
-
-    return await doctor_service.get_all_doctors()
-@router.get(
-    "/{doctor_id}",
-    response_model=DoctorResponse
-)
-async def get_doctor_by_id(
-    doctor_id: str,
-    doctor_service: DoctorService = Depends(
-        get_doctor_service
-    )
-):
-
-    return await doctor_service.get_doctor_by_id(
-        doctor_id
-    )
-@router.put(
-    "/{doctor_id}"
-)
-async def update_doctor(
-    doctor_id: str,
-    doctor_update: DoctorUpdate,
+async def create_doctor_profile(
+    doctor_data: DoctorCreate,
     doctor_service: DoctorService = Depends(
         get_doctor_service
     ),
     current_user=Depends(
         require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN
+        )
+    )
+):
+
+    return await doctor_service.create_doctor_profile(
+        doctor_data=doctor_data,
+        current_user=current_user
+    )
+
+
+# -------------------- Get All Doctors -------------------- #
+
+@router.get(
+    "",
+    response_model=list[DoctorResponse]
+    
+)
+async def get_all_doctors(
+
+    doctor_service: DoctorService = Depends(
+        get_doctor_service
+    ),
+
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN
+        )
+    )
+):
+
+    return await doctor_service.get_all_doctors(
+        current_user=current_user
+    )
+
+
+
+# -------------------- Get Doctor By department ID -------------------- #
+
+@router.get(
+    "/department/{department_id}",
+    response_model=list[DoctorResponse]
+)
+async def get_doctors_by_department(
+
+    department_id: str,
+
+    doctor_service: DoctorService = Depends(
+        get_doctor_service
+    ),
+
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN
+        )
+    )
+):
+
+    return await doctor_service.get_doctors_by_department(
+
+        current_user=current_user,
+
+        department_id=department_id
+    )
+
+# -------------------- Get Doctor By ID -------------------- #
+
+@router.get(
+    "/{doctor_id}",
+    response_model=DoctorResponse,
+    
+)
+async def get_doctor_by_id(
+
+    doctor_id: str,
+
+    doctor_service: DoctorService = Depends(
+        get_doctor_service
+    ),
+
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN
+        )
+    )
+):
+
+    return await doctor_service.get_doctor_by_id(
+        current_user=current_user,
+        doctor_id=doctor_id
+    )
+
+
+# -------------------- Update Doctor -------------------- #
+
+@router.patch(
+    "/{doctor_id}",
+    response_model=DoctorResponse,
+    status_code=status.HTTP_200_OK
+)
+async def update_doctor(
+
+    doctor_id: str,
+
+    doctor_data: DoctorUpdate,
+
+    doctor_service: DoctorService = Depends(
+        get_doctor_service
+    ),
+
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
             UserRole.ADMIN
         )
     )
 ):
 
     return await doctor_service.update_doctor(
-        doctor_id,
-        doctor_update
+        current_user=current_user,
+        doctor_id=doctor_id,
+        doctor_data=doctor_data
     )
+
+
+# -------------------- Update Doctor Status -------------------- #
+
 @router.patch(
-    "/{doctor_id}/deactivate"
+    "/{doctor_id}/status",
+    response_model=DoctorResponse,
+    status_code=status.HTTP_200_OK
 )
-async def deactivate_doctor(
+async def update_doctor_status(
+
     doctor_id: str,
+
+    status_data: UpdateDoctorStatus,
+
     doctor_service: DoctorService = Depends(
         get_doctor_service
     ),
+
     current_user=Depends(
         require_role(
+            UserRole.SUPER_ADMIN,
             UserRole.ADMIN
         )
     )
 ):
 
-    return await doctor_service.deactivate_doctor(
-        doctor_id
+    return await doctor_service.update_doctor_status(
+
+        current_user=current_user,
+
+        doctor_id=doctor_id,
+
+        status_data=status_data
     )

@@ -59,3 +59,13 @@ class IDGenerator:
 
         return f"DEP-{year}-{seq:05d}"
     
+    @staticmethod
+    async def generate_schedule_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"schedule:{year}"
+        )
+
+        return f"SCH-{year}-{seq:05d}"

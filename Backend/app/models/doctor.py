@@ -15,28 +15,29 @@ class DoctorModel(BaseModel):
 
     user_id: str
 
-    first_name: str
-    last_name: Optional[str] = None
+    hospital_id: str
 
-    email: EmailStr
-    phone: str
+    department_id: str
 
-    gender: Gender
-
-    specialization: str
+    license_number: str
 
     qualification: str
 
-    experience_years: int = 0
+    specialization: str
 
-    consultation_fee: float = 0
+    experience_years: int=0
 
-    status: DoctorStatus = DoctorStatus.ACTIVE
+    consultation_fee: float=0
 
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    joining_date: datetime
 
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+
+    status: DoctorStatus.ACTIVE
+
+    availability: dict = Field(default_factory=dict)
+
+    created_at: datetime
+
+    updated_at: datetime
+
+  
