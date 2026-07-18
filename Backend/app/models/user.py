@@ -74,7 +74,7 @@ class UserModel(BaseModel):
 
     department: str | None = None
 
-    employee_code: str | None = None
+    
 
     contact: UserContact | None = None 
 
