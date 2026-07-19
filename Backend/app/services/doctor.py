@@ -62,9 +62,11 @@ class DoctorService:
 
             email=user["email"],
 
-            phone=user["contact"]["phone"],
 
-            gender=user["gender"],
+            phone=user.get("contact",{}).get("phone"),
+
+            # gender=doctor["gender"],
+            gender=doctor.get("gender", "Not Specified"),
 
             department_id=doctor["department_id"],
 
@@ -189,6 +191,8 @@ class DoctorService:
         user_id=user["user_id"],
 
         hospital_id=user["hospital_id"],
+        
+        gender=doctor_data.gender,
 
         department_id=doctor_data.department_id,
 
@@ -236,8 +240,8 @@ class DoctorService:
 
         response = []
 
-        for doctor in doctors:
-
+        for doctor in doctors.get("items",[]):
+            
             user = await self.user_repo.get_by_user_id(
                 doctor["user_id"]
             )

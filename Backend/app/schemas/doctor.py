@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 from app.models.patient import Gender
 
-from app.models.doctor import DoctorStatus
+from app.models.doctor import DoctorStatus,Gender
 
 
 class DoctorCreate(BaseModel):
@@ -18,7 +18,7 @@ class DoctorCreate(BaseModel):
     )
 
     qualification: str
-
+    gender: Gender
     specialization: str
 
     experience_years: int = 0
@@ -63,7 +63,7 @@ class DoctorResponse(BaseModel):
     experience_years: int
 
     consultation_fee: float
-
+    license_number: str
     status: DoctorStatus
     joining_date: datetime
      

@@ -138,9 +138,9 @@ class DoctorScheduleService:
 
             day_of_week=schedule_data.day_of_week,
 
-            start_time=schedule_data.start_time,
+            start_time = schedule_data.start_time.strftime("%H:%M"),
 
-            end_time=schedule_data.end_time,
+            end_time=schedule_data.end_time.strftime("%H:%M"),
 
             slot_duration=schedule_data.slot_duration,
 
@@ -273,8 +273,16 @@ class DoctorScheduleService:
 
             )
 
-        doctor_id = schedule["doctor_id"]
+        if "start_time" in update_data and update_data["start_time"] is not None:
+            if hasattr(update_data["start_time"], "strftime"):
+                update_data["start_time"] = update_data["start_time"].strftime("%H:%M")
 
+        if "end_time" in update_data and update_data["end_time"] is not None:
+            if hasattr(update_data["end_time"], "strftime"):
+                update_data["end_time"] = update_data["end_time"].strftime("%H:%M")
+        # -------------------------------------------------------
+
+        doctor_id = schedule["doctor_id"]
         day = schedule["day_of_week"]
 
         start_time = update_data.get(
@@ -288,56 +296,37 @@ class DoctorScheduleService:
         )
 
         overlaps = await self.schedule_repo.get_by_schedule_id_except_current(
-
             hospital_id=current_user["hospital_id"],
-
             doctor_id=doctor_id,
-
             day_of_week=day,
-
             schedule_id=schedule_id
-
         )
 
         for item in overlaps:
-
             if (
-
                 start_time < item["end_time"]
-
                 and
-
                 end_time > item["start_time"]
-
             ):
-
                 raise HTTPException(
-
                     status_code=status.HTTP_409_CONFLICT,
-
                     detail="Schedule overlaps with existing schedule"
-
                 )
 
         await self.schedule_repo.update_schedule(
-
             schedule_id=schedule_id,
-
             hospital_id=current_user["hospital_id"],
-
             update_data=update_data
-
         )
 
         updated = await self.schedule_repo.get_by_schedule_id(
-
             schedule_id=schedule_id,
-
             hospital_id=current_user["hospital_id"]
-
         )
 
         return self._build_schedule_response(updated)
+    
+        
     
     async def update_schedule_status(
         self,
