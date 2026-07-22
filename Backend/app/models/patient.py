@@ -33,20 +33,18 @@ class PatientStatus(str, Enum):
 class PatientModel(BaseModel):
     patient_id: str
 
+    hospital_id: str
+
     first_name: str
     last_name: Optional[str] = None
 
     gender: Gender
     dob: date
-   # password : str
-
-    
 
     phone: str
     email: Optional[EmailStr] = None
 
     blood_group: Optional[BloodGroup] = None
-    
 
     address: Optional[str] = None
 

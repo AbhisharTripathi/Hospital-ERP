@@ -10,11 +10,21 @@ from app.schemas.department import (
     DepartmentUpdate,
     UpdateDepartmentStatus
 )
+from app.schemas.pagination import (
+    PaginatedResponse,
+    build_pagination_meta
+)
 
 from app.utils.id_generator import IDGenerator
 from app.constants.default_department import DEFAULT_DEPARTMENTS
 
 class DepartmentService:
+
+    ALLOWED_SORT_FIELDS = {
+        "name",
+        "code",
+        "created_at"
+    }
 
     def __init__(
         self,
@@ -132,38 +142,81 @@ class DepartmentService:
 
     async def get_all_departments(
         self,
-        current_user
+        current_user,
+        page: int = 1,
+        limit: int = 20,
+        search: str | None = None,
+        is_active: bool | None = None,
+        sort_by: str = "name",
+        sort_order: int = 1
     ):
+        if sort_by not in self.ALLOWED_SORT_FIELDS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid sort field. Allowed fields: {', '.join(self.ALLOWED_SORT_FIELDS)}"
+            )
 
-        departments = await self.department_repo.get_all_departments(
-            hospital_id=current_user["hospital_id"]
+        if sort_order not in (1, -1):
+            raise HTTPException(
+                status_code=400,
+                detail="sort_order must be 1 or -1"
+            )
+        result = await self.department_repo.get_all_departments(
+            hospital_id=current_user["hospital_id"],
+            page=page,
+            limit=limit,
+            search=search,
+            is_active=is_active,
+            sort_by=sort_by,
+            sort_order=sort_order
         )
-
-        return [
+        response = [
 
             DepartmentResponse(
 
-                department_id=department["department_id"],
+                    department_id=department["department_id"],
 
-                hospital_id=department["hospital_id"],
+                    hospital_id=department["hospital_id"],
 
-                name=department["name"],
+                    name=department["name"],
 
-                code=department["code"],
+                    code=department["code"],
 
-                description=department.get("description"),
+                    description=department.get("description"),
 
-                head_doctor_id=department.get(
-                    "head_doctor_id"
-                ),
+                    head_doctor_id=department.get(
+                        "head_doctor_id"
+                    ),
 
-                is_active=department["is_active"]
+                    is_active=department["is_active"]
 
             )
 
-            for department in departments
+            for department in result["items"]
 
         ]
+
+        return PaginatedResponse[DepartmentResponse](
+
+            data=response,
+
+            pagination=build_pagination_meta(
+
+                page=page,
+
+                limit=limit,
+
+                total_records=result["total"]
+
+             )
+        )
+     
+
+        # departments = await self.department_repo.get_all_departments(
+        #     hospital_id=current_user["hospital_id"]
+        # )
+
+      
 
     async def get_department_by_id(
         self,

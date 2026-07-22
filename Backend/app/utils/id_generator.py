@@ -69,3 +69,13 @@ class IDGenerator:
         )
 
         return f"SCH-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_appointment_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"appointment:{year}"
+        )
+
+        return f"APP-{year}-{seq:05d}"

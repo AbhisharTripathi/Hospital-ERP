@@ -19,13 +19,24 @@ from app.schemas.user import (
     EmployeeResponse,EmployeeUpdate,UpdateEmployeeStatus
 )
 
+from app.schemas.pagination import (
+    PaginatedResponse,
+    build_pagination_meta
+)
 from app.services.email import EmailService
 
 from app.utils.id_generator import IDGenerator
 from app.core.permissions import can_assign_role,can_manage_user
 
 class UserService:
-
+    ALLOWED_SORT_FIELDS = {
+        "created_at",
+        "updated_at",
+        "email",
+        "role",
+        "department",
+        "status"
+    }
     def __init__(
         self,
         user_repository: UserRepository,
@@ -137,31 +148,89 @@ class UserService:
     
     async def get_all_employees(
         self,
-        current_user:dict
+        current_user,
+        page: int = 1,
+        limit: int = 20,
+        search: str | None = None,
+        role=None,
+        status=None,
+        sort_by: str = "created_at",
+        sort_order: int = -1
     ):
-        users = await self.user_repo.get_all_by_hospital(
-        current_user["hospital_id"]
-        )
-        employees = []
 
-        for user in users:
-
-            employees.append(
-                EmployeeResponse(
-                    user_id=user["user_id"],
-                    hospital_id=user["hospital_id"],
-                    first_name=user["name"]["first"],
-                    last_name=user["name"].get("last"),
-                    email=user["email"],
-                    phone=user.get("contact", {}).get("phone"),
-                    role=user["role"],
-                    department=user.get("department"),
-                    status=user.get("status"),
-                    is_active=user.get("is_active", True)
-                )
+        if sort_by not in self.ALLOWED_SORT_FIELDS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid sort field. Allowed fields: {', '.join(self.ALLOWED_SORT_FIELDS)}"
             )
 
-        return employees
+        if sort_order not in (1, -1):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="sort_order must be either 1 or -1"
+            )
+
+        page = max(page, 1)
+        limit = max(1, min(limit, 100))
+
+        result = await self.user_repo.get_all_by_hospital(
+            hospital_id=current_user["hospital_id"],
+            page=page,
+            limit=limit,
+            search=search,
+            role=role,
+            status=status,
+            sort_by=sort_by,
+            sort_order=sort_order
+        )
+
+        response = []
+
+        for user in result["items"]:
+
+            response.append(
+
+                EmployeeResponse(
+
+                    user_id=user["user_id"],
+
+                    hospital_id=user["hospital_id"],
+
+                    first_name=user["name"]["first"],
+
+                    last_name=user["name"].get("last"),
+
+                    email=user["email"],
+
+                    phone=user.get("contact", {}).get("phone"),
+
+                    role=user["role"],
+
+                    department=user.get("department"),
+
+                    status=user["status"],
+
+                    is_active=user.get("is_active", True)
+
+                )
+
+            )
+
+        return PaginatedResponse[EmployeeResponse](
+
+            data=response,
+
+            pagination=build_pagination_meta(
+
+                page=page,
+
+                limit=limit,
+
+                total_records=result["total"]
+
+            )
+
+        )
     
     
     

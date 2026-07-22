@@ -19,6 +19,7 @@ from app.models.user import (
     UserStatus
 )
 
+
 from app.repositories.user import UserRepository
 from app.repositories.patient import PatientRepository
 from app.repositories.counters import CountersRepository
@@ -40,6 +41,8 @@ from app.repositories.doctor_schedule import (
 from app.services.doctor_schedule import (
     DoctorScheduleService
 )
+from app.repositories.appointment import AppointmentRepository
+from app.services.appointment import AppointmentService
 security = HTTPBearer()
 
 
@@ -353,3 +356,56 @@ def require_role(
         return current_user
 
     return role_checker
+
+
+
+def get_appointment_repository(
+    db=Depends(get_db)
+):
+    return AppointmentRepository(db)
+
+
+# ===========================
+# Appointment Service
+# ===========================
+
+
+
+
+def get_appointment_service(
+
+    appointment_repository: AppointmentRepository = Depends(
+        get_appointment_repository
+    ),
+
+    patient_repository: PatientRepository = Depends(
+        get_patient_repository
+    ),
+
+    doctor_repository: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    doctor_schedule_repository: DoctorScheduleRepository = Depends(
+        get_doctor_schedule_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+):
+
+    return AppointmentService(
+
+        appointment_repository=appointment_repository,
+
+        patient_repository=patient_repository,
+
+        doctor_repository=doctor_repository,
+
+        schedule_repository=doctor_schedule_repository,
+
+        counter_repository=counter_repository
+
+    )

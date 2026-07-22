@@ -177,7 +177,21 @@ class DoctorRepository:
                 "$set": update_data
             }
         )
+    async def get_active_doctor(
+        self,
+        hospital_id: str,
+        doctor_id: str
+    ):
 
+        return await self.db.doctors.find_one(
+
+            {
+                "hospital_id": hospital_id,
+                "doctor_id": doctor_id,
+                "status": DoctorStatus.ACTIVE
+            }
+
+        )
     # ---------------- Status ---------------- #
 
     async def update_status(

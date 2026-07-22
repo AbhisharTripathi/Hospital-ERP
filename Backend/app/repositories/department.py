@@ -73,16 +73,66 @@ class DepartmentRepository:
 
     async def get_all_departments(
         self,
-        hospital_id: str
+        hospital_id: str,
+        page: int = 1,
+        limit: int = 20,
+        search: str | None = None,
+        is_active: bool | None = None,
+        sort_by: str = "name",
+        sort_order: int = 1
     ):
+        query = {
+            "hospital_id": hospital_id
+        }
 
-        cursor = self.db.departments.find(
-            {
-                "hospital_id": hospital_id
-            }
+        if is_active is not None:
+            query["is_active"] = is_active
+
+        if search:
+            query["$or"] = [
+
+                {
+                    "name": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                },
+
+                {
+                    "code": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                }
+
+            ]
+
+        total = await self.db.departments.count_documents(query)
+        skip = (page - 1) * limit
+        departments = await self.db.departments.find(
+            query
+        ).sort(
+            sort_by,
+            sort_order
+        ).skip(
+            skip
+        ).limit(
+            limit
+        ).to_list(
+            length=limit
         )
+        return {
+            "items": departments,
+            "total": total
+        }
+        
+        # cursor = self.db.departments.find(
+        #     {
+        #         "hospital_id": hospital_id
+        #     }
+        # )
 
-        return await cursor.to_list(length=None)
+        # return await cursor.to_list(length=None)
 
     async def update_department(
         self,

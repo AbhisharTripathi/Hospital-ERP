@@ -13,9 +13,10 @@ from app.schemas.department import (
     DepartmentUpdate,
     UpdateDepartmentStatus
 )
+from fastapi import Query
 
 from app.services.department import DepartmentService
-
+from app.schemas.pagination import PaginatedResponse
 router = APIRouter(
     prefix="/departments",
     tags=["Departments"]
@@ -47,12 +48,24 @@ async def create_department(
 
 @router.get(
     "",
-    response_model=list[DepartmentResponse],
+    response_model=PaginatedResponse[DepartmentResponse],
     status_code=status.HTTP_200_OK
 )
 async def get_all_departments(
 
-    current_user=Depends(
+    page: int = Query(default=1, ge=1),
+
+    limit: int = Query(default=20, ge=1, le=100),
+
+    search: str | None = Query(default=None),
+
+    is_active: bool | None = Query(default=None),
+
+    sort_by: str = Query(default="name"),
+
+    sort_order: int = Query(default=1),
+
+    current_user = Depends(
         require_role(
             UserRole.SUPER_ADMIN,
             UserRole.ADMIN
@@ -62,12 +75,16 @@ async def get_all_departments(
     department_service: DepartmentService = Depends(
         get_department_service
     )
-
 ):
-
     return await department_service.get_all_departments(
-        current_user=current_user
-    )
+    current_user=current_user,
+    page=page,
+    limit=limit,
+    search=search,
+    is_active=is_active,
+    sort_by=sort_by,
+    sort_order=sort_order
+)
 
 
 @router.get(

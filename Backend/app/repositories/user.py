@@ -1,5 +1,8 @@
-from app.models.user import UserStatus
 from datetime import datetime, timezone
+
+from app.models.user import UserStatus
+
+
 class UserRepository:
 
     def __init__(self, db):
@@ -51,23 +54,22 @@ class UserRepository:
                 "$set": updated_data
             }
         )
+
     async def get_by_invite_token(
         self,
         token: str
     ):
-
         return await self.db.users.find_one(
             {
                 "invite_token": token
             }
         )
-    
+
     async def update_password(
         self,
         user_id: str,
         hashed_password: str
     ):
-
         return await self.db.users.update_one(
             {
                 "user_id": user_id
@@ -82,16 +84,14 @@ class UserRepository:
                     "updated_at": datetime.now(timezone.utc)
                 }
             }
-        )  
+        )
 
     async def update_invite_token(
         self,
         user_id: str,
         token: str,
-        expiry:datetime
-        
+        expiry: datetime
     ):
-
         return await self.db.users.update_one(
             {
                 "user_id": user_id
@@ -102,41 +102,109 @@ class UserRepository:
                     "invite_token_expiry": expiry
                 }
             }
-        )  
-    
+        )
 
     async def get_all_by_hospital(
         self,
-        hospital_id: str
+        hospital_id: str,
+        page: int = 1,
+        limit: int = 20,
+        search: str | None = None,
+        role=None,
+        status=None,
+        sort_by: str = "created_at",
+        sort_order: int = -1
     ):
 
-        cursor = self.db.users.find(
-            {
-                "hospital_id": hospital_id
-            }
+        query = {
+            "hospital_id": hospital_id
+        }
+
+        if role:
+            query["role"] = role
+
+        if status:
+            query["status"] = status
+
+        if search:
+            query["$or"] = [
+
+                {
+                    "name.first": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                },
+
+                {
+                    "name.last": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                },
+
+                {
+                    "email": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                },
+
+                {
+                    "contact.phone": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                },
+
+                {
+                    "department": {
+                        "$regex": search,
+                        "$options": "i"
+                    }
+                }
+
+            ]
+
+        total = await self.db.users.count_documents(query)
+
+        skip = (page - 1) * limit
+
+        users = await self.db.users.find(
+            query
+        ).sort(
+            sort_by,
+            sort_order
+        ).skip(
+            skip
+        ).limit(
+            limit
+        ).to_list(
+            length=limit
         )
 
-        return await cursor.to_list(length=None)
-    
+        return {
+            "items": users,
+            "total": total
+        }
+
     async def get_by_user_id_and_hospital(
         self,
         user_id: str,
         hospital_id: str
     ):
-
         return await self.db.users.find_one(
             {
                 "user_id": user_id,
                 "hospital_id": hospital_id
             }
         )
-    
+
     async def update_employee(
         self,
         user_id: str,
         update_data: dict
     ):
-
         return await self.db.users.update_one(
             {
                 "user_id": user_id
@@ -145,14 +213,13 @@ class UserRepository:
                 "$set": update_data
             }
         )
-    
+
     async def update_status(
         self,
         user_id: str,
         hospital_id: str,
         status: UserStatus
     ):
-
         return await self.db.users.update_one(
             {
                 "user_id": user_id,

@@ -13,6 +13,7 @@ from .api.v1.department import router as department_router
 from .api.v1.doctor_schedule import (
     router as doctor_schedule_router
 )
+from .api.v1.appointment import router as appointment_router
 def create_app():
 
     @asynccontextmanager
@@ -55,12 +56,12 @@ def create_app():
     app.include_router(auth_router)
     # app.include_router se hum dono alag alg router ko hum FastAPI app se jod rahe hai 
     
-
+   
     app.include_router(user_router)
 
     app.include_router(doctor_router)
     app.include_router(department_router)
     app.include_router(doctor_schedule_router)
-    
+    app.include_router(appointment_router)
     
     return app

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+import math
 from fastapi import HTTPException, status
 
 from app.models.doctor import (
@@ -20,14 +20,30 @@ from app.schemas.doctor import (
     UpdateDoctorStatus
 )
 
+from app.schemas.pagination import (
+    PaginatedResponse,
+    build_pagination_meta
+)
+
 from app.repositories.doctor import DoctorRepository
 from app.repositories.user import UserRepository
 from app.repositories.department import DepartmentRepository
 from app.repositories.counters import CountersRepository
 from app.utils.id_generator import IDGenerator
 from app.services.email import EmailService
+
 class DoctorService:
 
+    ALLOWED_SORT_FIELDS = {
+        "created_at",
+        "joining_date",
+        "experience_years",
+        "consultation_fee",
+        "specialization",
+        "qualification",
+        "license_number"
+    }
+    
     def __init__(
         self,
         doctor_repository: DoctorRepository,
@@ -231,16 +247,55 @@ class DoctorService:
     
     async def get_all_doctors(
         self,
-        current_user
+        current_user,
+        page:int =1,
+        limit:int=20,
+        search: str| None=None,
+        department_id:str|None=None,
+        doctor_status:DoctorStatus|None=None,
+        sort_by: str="created_at",
+        sort_order: int=-1,
+       
     ):
+        if sort_by not in self.ALLOWED_SORT_FIELDS:
+            raise HTTPException(
 
-        doctors = await self.doctor_repo.get_all_doctors(
-            hospital_id=current_user["hospital_id"]
+                status_code=status.HTTP_400_BAD_REQUEST,
+
+                detail=f"Invalid sort field. Allowed fields: {', '.join(self.ALLOWED_SORT_FIELDS)}"
+
+            )
+        
+        if sort_order not in (1, -1):
+            raise HTTPException(
+
+                status_code=status.HTTP_400_BAD_REQUEST,
+
+                detail="sort_order must be either 1 (Ascending) or -1 (Descending)"
+
+            )
+        limit = max(10, min(limit, 100))
+        page = max(page, 1)
+        
+        result = await self.doctor_repo.get_all_doctors(
+            hospital_id=current_user["hospital_id"],
+            page=page,
+            limit=limit,
+            search=search,
+            department_id=department_id,
+            status=doctor_status,
+            sort_by=sort_by,
+            sort_order=sort_order,
+     
+
         )
+        total = result["total"]
+        
+       
 
         response = []
 
-        for doctor in doctors.get("items",[]):
+        for doctor in result["items"]:
             
             user = await self.user_repo.get_by_user_id(
                 doctor["user_id"]
@@ -256,8 +311,18 @@ class DoctorService:
                 )
                     
             )
+        pagination=build_pagination_meta(
+            page=page,
+            limit=limit,
+            total_records=total,
+          
+            
+        )
 
-        return response
+        return PaginatedResponse[DoctorResponse](
+            data=response,
+            pagination=pagination
+        )
     
     async def get_doctor_by_id(
         self,
