@@ -136,11 +136,15 @@ class VitalService:
 
             )
 
+        # ---------------------------------
+        # Patient Exists
+        # ---------------------------------
+
         patient = await self.patient_repo.get_patient_by_id(
 
             hospital_id,
 
-            vital_data.patient_id
+            appointment["patient_id"]
 
         )
 
@@ -154,9 +158,13 @@ class VitalService:
 
             )
 
+        # ---------------------------------
+        # Doctor Exists
+        # ---------------------------------
+
         doctor = await self.doctor_repo.get_doctor_by_id(
 
-            vital_data.doctor_id,
+            appointment["doctor_id"],
 
             hospital_id
 
@@ -192,11 +200,11 @@ class VitalService:
 
             hospital_id=hospital_id,
 
-            appointment_id=vital_data.appointment_id,
+            patient_id=appointment["patient_id"],
 
-            patient_id=vital_data.patient_id,
+            doctor_id=appointment["doctor_id"],
 
-            doctor_id=vital_data.doctor_id,
+            appointment_id=appointment["appointment_id"],
 
             height_cm=vital_data.height_cm,
 

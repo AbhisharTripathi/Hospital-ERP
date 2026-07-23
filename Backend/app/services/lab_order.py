@@ -3,13 +3,13 @@ from fastapi import (
     status
 )
 
-from app.models.prescription import (
-    PrescriptionModel,
-    PrescriptionStatus
+from app.models.lab_order import (
+    LabOrderModel,
+    LabOrderStatus
 )
 
-from app.schemas.prescription import (
-    PrescriptionCreate
+from app.schemas.lab_order import (
+    LabOrderCreate
 )
 
 from app.schemas.pagination import (
@@ -22,13 +22,13 @@ from app.utils.id_generator import (
 )
 
 
-class PrescriptionService:
+class LabOrderService:
 
     def __init__(
 
         self,
 
-        prescription_repository,
+        lab_order_repository,
 
         appointment_repository,
 
@@ -40,7 +40,7 @@ class PrescriptionService:
 
     ):
 
-        self.prescription_repo = prescription_repository
+        self.lab_order_repo = lab_order_repository
 
         self.appointment_repo = appointment_repository
 
@@ -51,10 +51,10 @@ class PrescriptionService:
         self.counter_repo = counter_repository
 
     # ==========================================
-    # Create Prescription
+    # Create Lab Order
     # ==========================================
 
-    async def create_prescription(
+    async def create_lab_order(
 
         self,
 
@@ -62,7 +62,7 @@ class PrescriptionService:
 
         current_user,
 
-        prescription_data: PrescriptionCreate
+        lab_order_data: LabOrderCreate
 
     ):
 
@@ -74,7 +74,7 @@ class PrescriptionService:
 
             hospital_id,
 
-            prescription_data.appointment_id
+            lab_order_data.appointment_id
 
         )
 
@@ -113,6 +113,7 @@ class PrescriptionService:
         # -------------------------------
         # Doctor Exists
         # -------------------------------
+
         doctor = await self.doctor_repo.get_doctor_by_id(
 
             appointment["doctor_id"],
@@ -130,17 +131,16 @@ class PrescriptionService:
                 detail="Doctor not found"
 
             )
-        
 
         # -------------------------------
-        # One Prescription Per Appointment
+        # One Lab Order Per Appointment
         # -------------------------------
 
-        existing = await self.prescription_repo.get_by_appointment_id(
+        existing = await self.lab_order_repo.get_by_appointment_id(
 
             hospital_id,
 
-            prescription_data.appointment_id
+            lab_order_data.appointment_id
 
         )
 
@@ -150,23 +150,23 @@ class PrescriptionService:
 
                 status_code=status.HTTP_400_BAD_REQUEST,
 
-                detail="Prescription already exists for this appointment"
+                detail="Lab order already exists for this appointment"
 
             )
 
         # -------------------------------
-        # Generate Prescription ID
+        # Generate Lab Order ID
         # -------------------------------
 
-        prescription_id = await IDGenerator.generate_prescription_id(
+        lab_order_id = await IDGenerator.generate_lab_order_id(
 
             self.counter_repo
 
         )
 
-        prescription = PrescriptionModel(
+        lab_order = LabOrderModel(
 
-            prescription_id=prescription_id,
+            lab_order_id=lab_order_id,
 
             hospital_id=hospital_id,
 
@@ -176,23 +176,23 @@ class PrescriptionService:
 
             appointment_id=appointment["appointment_id"],
 
-            diagnosis=prescription_data.diagnosis,
+            tests=lab_order_data.tests,
 
-            advice=prescription_data.advice,
+            priority=lab_order_data.priority,
 
-            follow_up_date=prescription_data.follow_up_date,
+            clinical_notes=lab_order_data.clinical_notes,
 
-            medicines=prescription_data.medicines,
+            expected_date=lab_order_data.expected_date,
 
-            status=PrescriptionStatus.ACTIVE,
+            status=LabOrderStatus.ORDERED,
 
-            created_by=current_user["user_id"]
+            ordered_by=current_user["user_id"]
 
         )
 
-        await self.prescription_repo.create_prescription(
+        await self.lab_order_repo.create_lab_order(
 
-            prescription.model_dump()
+            lab_order.model_dump()
 
         )
 
@@ -200,50 +200,51 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription created successfully",
+            "message": "Lab order created successfully",
 
-            "prescription_id": prescription_id
+            "lab_order_id": lab_order_id
 
         }
-        # ==========================================
-    # Get Prescription By ID
+
+    # ==========================================
+    # Get Lab Order By ID
     # ==========================================
 
-    async def get_by_prescription_id(
+    async def get_by_lab_order_id(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str
+        lab_order_id: str
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        lab_order = await self.lab_order_repo.get_by_lab_order_id(
 
             hospital_id,
 
-            prescription_id
+            lab_order_id
 
         )
 
-        if not prescription:
+        if not lab_order:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Lab order not found"
 
             )
 
-        return prescription
+        return lab_order
 
     # ==========================================
-    # Get Patient Prescriptions
+    # Get Patient Lab Orders
     # ==========================================
 
-    async def get_patient_prescriptions(
+    async def get_patient_lab_orders(
 
         self,
 
@@ -271,19 +272,18 @@ class PrescriptionService:
 
             )
 
-        return await self.prescription_repo.get_by_patient(
+        return await self.lab_order_repo.get_by_patient(
 
             hospital_id,
 
             patient_id
 
         )
-
+        # ==========================================
+    # Get All Lab Orders
     # ==========================================
-    # Get All Prescriptions
-    # ==========================================
 
-    async def get_all_prescriptions(
+    async def get_all_lab_orders(
 
         self,
 
@@ -299,7 +299,7 @@ class PrescriptionService:
 
         patient_id: str | None = None,
 
-        status: PrescriptionStatus | None = None,
+        status: LabOrderStatus | None = None,
 
         sort_by: str = "created_at",
 
@@ -307,7 +307,7 @@ class PrescriptionService:
 
     ):
 
-        result = await self.prescription_repo.get_all_prescriptions(
+        result = await self.lab_order_repo.get_all_lab_orders(
 
             hospital_id=hospital_id,
 
@@ -348,40 +348,40 @@ class PrescriptionService:
         )
 
     # ==========================================
-    # Update Prescription
+    # Update Lab Order
     # ==========================================
 
-    async def update_prescription(
+    async def update_lab_order(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str,
+        lab_order_id: str,
 
-        prescription_data
+        lab_order_data
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        lab_order = await self.lab_order_repo.get_by_lab_order_id(
 
             hospital_id,
 
-            prescription_id
+            lab_order_id
 
         )
 
-        if not prescription:
+        if not lab_order:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Lab order not found"
 
             )
 
-        update_data = prescription_data.model_dump(
+        update_data = lab_order_data.model_dump(
 
             exclude_unset=True,
 
@@ -389,11 +389,11 @@ class PrescriptionService:
 
         )
 
-        await self.prescription_repo.update_prescription(
+        await self.lab_order_repo.update_lab_order(
 
             hospital_id,
 
-            prescription_id,
+            lab_order_id,
 
             update_data
 
@@ -403,7 +403,7 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription updated successfully"
+            "message": "Lab order updated successfully"
 
         }
 
@@ -417,35 +417,35 @@ class PrescriptionService:
 
         hospital_id: str,
 
-        prescription_id: str,
+        lab_order_id: str,
 
         status_data
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        lab_order = await self.lab_order_repo.get_by_lab_order_id(
 
             hospital_id,
 
-            prescription_id
+            lab_order_id
 
         )
 
-        if not prescription:
+        if not lab_order:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Lab order not found"
 
             )
 
-        await self.prescription_repo.update_status(
+        await self.lab_order_repo.update_status(
 
             hospital_id,
 
-            prescription_id,
+            lab_order_id,
 
             status_data.status
 
@@ -455,47 +455,51 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription status updated successfully"
+            "message": "Lab order status updated successfully"
 
         }
 
     # ==========================================
-    # Delete Prescription
+    # Upload Report
     # ==========================================
 
-    async def delete_prescription(
+    async def upload_report(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str
+        lab_order_id: str,
+
+        report_data
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        lab_order = await self.lab_order_repo.get_by_lab_order_id(
 
             hospital_id,
 
-            prescription_id
+            lab_order_id
 
         )
 
-        if not prescription:
+        if not lab_order:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Lab order not found"
 
             )
 
-        await self.prescription_repo.delete_prescription(
+        await self.lab_order_repo.upload_report(
 
             hospital_id,
 
-            prescription_id
+            lab_order_id,
+
+            report_data.report_file
 
         )
 
@@ -503,6 +507,54 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription deleted successfully"
+            "message": "Lab report uploaded successfully"
+
+        }
+
+    # ==========================================
+    # Delete Lab Order
+    # ==========================================
+
+    async def delete_lab_order(
+
+        self,
+
+        hospital_id: str,
+
+        lab_order_id: str
+
+    ):
+
+        lab_order = await self.lab_order_repo.get_by_lab_order_id(
+
+            hospital_id,
+
+            lab_order_id
+
+        )
+
+        if not lab_order:
+
+            raise HTTPException(
+
+                status_code=status.HTTP_404_NOT_FOUND,
+
+                detail="Lab order not found"
+
+            )
+
+        await self.lab_order_repo.delete_lab_order(
+
+            hospital_id,
+
+            lab_order_id
+
+        )
+
+        return {
+
+            "success": True,
+
+            "message": "Lab order deleted successfully"
 
         }

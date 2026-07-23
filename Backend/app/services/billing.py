@@ -135,11 +135,26 @@ class BillingService:
 
     ):
 
+        appointment = await self.appointment_repo.get_by_appointment_id(
+            hospital_id,
+            billing_data.appointment_id
+        )
+
+        if not appointment:
+
+            raise HTTPException(
+
+                status_code=status.HTTP_404_NOT_FOUND,
+
+                detail="Appointment not found"
+
+            )
+
         patient = await self.patient_repo.get_patient_by_id(
 
             hospital_id,
 
-            billing_data.patient_id
+            appointment["patient_id"]
 
         )
 
@@ -155,7 +170,7 @@ class BillingService:
 
         doctor = await self.doctor_repo.get_doctor_by_id(
 
-            billing_data.doctor_id,
+            appointment["doctor_id"],
 
             hospital_id
 
@@ -170,26 +185,6 @@ class BillingService:
                 detail="Doctor not found"
 
             )
-
-        if billing_data.appointment_id:
-
-            appointment = await self.appointment_repo.get_by_appointment_id(
-
-                hospital_id,
-
-                billing_data.appointment_id
-
-            )
-
-            if not appointment:
-
-                raise HTTPException(
-
-                    status_code=status.HTTP_404_NOT_FOUND,
-
-                    detail="Appointment not found"
-
-                )
 
         bill_id = await IDGenerator.generate_bill_id(
 
@@ -231,11 +226,11 @@ class BillingService:
 
             hospital_id=hospital_id,
 
-            patient_id=patient["patient_id"],
+            patient_id=appointment["patient_id"],
 
-            doctor_id=doctor["doctor_id"],
+            doctor_id=appointment["doctor_id"],
 
-            appointment_id=billing_data.appointment_id,
+            appointment_id=appointment["appointment_id"],
 
             items=bill_items,
 

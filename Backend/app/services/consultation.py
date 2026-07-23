@@ -3,13 +3,13 @@ from fastapi import (
     status
 )
 
-from app.models.prescription import (
-    PrescriptionModel,
-    PrescriptionStatus
+from app.models.consultation import (
+    ConsultationModel,
+    ConsultationStatus
 )
 
-from app.schemas.prescription import (
-    PrescriptionCreate
+from app.schemas.consultation import (
+    ConsultationCreate
 )
 
 from app.schemas.pagination import (
@@ -22,13 +22,13 @@ from app.utils.id_generator import (
 )
 
 
-class PrescriptionService:
+class ConsultationService:
 
     def __init__(
 
         self,
 
-        prescription_repository,
+        consultation_repository,
 
         appointment_repository,
 
@@ -40,7 +40,7 @@ class PrescriptionService:
 
     ):
 
-        self.prescription_repo = prescription_repository
+        self.consultation_repo = consultation_repository
 
         self.appointment_repo = appointment_repository
 
@@ -51,10 +51,10 @@ class PrescriptionService:
         self.counter_repo = counter_repository
 
     # ==========================================
-    # Create Prescription
+    # Create Consultation
     # ==========================================
 
-    async def create_prescription(
+    async def create_consultation(
 
         self,
 
@@ -62,7 +62,7 @@ class PrescriptionService:
 
         current_user,
 
-        prescription_data: PrescriptionCreate
+        consultation_data: ConsultationCreate
 
     ):
 
@@ -74,7 +74,7 @@ class PrescriptionService:
 
             hospital_id,
 
-            prescription_data.appointment_id
+            consultation_data.appointment_id
 
         )
 
@@ -113,6 +113,7 @@ class PrescriptionService:
         # -------------------------------
         # Doctor Exists
         # -------------------------------
+
         doctor = await self.doctor_repo.get_doctor_by_id(
 
             appointment["doctor_id"],
@@ -130,17 +131,16 @@ class PrescriptionService:
                 detail="Doctor not found"
 
             )
-        
 
         # -------------------------------
-        # One Prescription Per Appointment
+        # Only One Consultation Per Appointment
         # -------------------------------
 
-        existing = await self.prescription_repo.get_by_appointment_id(
+        existing = await self.consultation_repo.get_by_appointment_id(
 
             hospital_id,
 
-            prescription_data.appointment_id
+            consultation_data.appointment_id
 
         )
 
@@ -150,49 +150,55 @@ class PrescriptionService:
 
                 status_code=status.HTTP_400_BAD_REQUEST,
 
-                detail="Prescription already exists for this appointment"
+                detail="Consultation already exists for this appointment"
 
             )
 
         # -------------------------------
-        # Generate Prescription ID
+        # Generate Consultation ID
         # -------------------------------
 
-        prescription_id = await IDGenerator.generate_prescription_id(
+        consultation_id = await IDGenerator.generate_consultation_id(
 
             self.counter_repo
 
         )
 
-        prescription = PrescriptionModel(
+        consultation = ConsultationModel(
 
-            prescription_id=prescription_id,
+            consultation_id=consultation_id,
 
             hospital_id=hospital_id,
+
+            appointment_id=appointment["appointment_id"],
 
             patient_id=appointment["patient_id"],
 
             doctor_id=appointment["doctor_id"],
 
-            appointment_id=appointment["appointment_id"],
+            chief_complaint=consultation_data.chief_complaint,
 
-            diagnosis=prescription_data.diagnosis,
+            history_of_present_illness=consultation_data.history_of_present_illness,
 
-            advice=prescription_data.advice,
+            physical_examination=consultation_data.physical_examination,
 
-            follow_up_date=prescription_data.follow_up_date,
+            diagnosis=consultation_data.diagnosis,
 
-            medicines=prescription_data.medicines,
+            clinical_notes=consultation_data.clinical_notes,
 
-            status=PrescriptionStatus.ACTIVE,
+            advice=consultation_data.advice,
+
+            follow_up_date=consultation_data.follow_up_date,
+
+            status=ConsultationStatus.IN_PROGRESS,
 
             created_by=current_user["user_id"]
 
         )
 
-        await self.prescription_repo.create_prescription(
+        await self.consultation_repo.create_consultation(
 
-            prescription.model_dump()
+            consultation.model_dump()
 
         )
 
@@ -200,50 +206,51 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription created successfully",
+            "message": "Consultation created successfully",
 
-            "prescription_id": prescription_id
+            "consultation_id": consultation_id
 
         }
-        # ==========================================
-    # Get Prescription By ID
+
+    # ==========================================
+    # Get Consultation By ID
     # ==========================================
 
-    async def get_by_prescription_id(
+    async def get_by_consultation_id(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str
+        consultation_id: str
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        consultation = await self.consultation_repo.get_by_consultation_id(
 
             hospital_id,
 
-            prescription_id
+            consultation_id
 
         )
 
-        if not prescription:
+        if not consultation:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Consultation not found"
 
             )
 
-        return prescription
+        return consultation
 
     # ==========================================
-    # Get Patient Prescriptions
+    # Get Patient Consultation History
     # ==========================================
 
-    async def get_patient_prescriptions(
+    async def get_patient_consultations(
 
         self,
 
@@ -271,19 +278,18 @@ class PrescriptionService:
 
             )
 
-        return await self.prescription_repo.get_by_patient(
+        return await self.consultation_repo.get_by_patient(
 
             hospital_id,
 
             patient_id
 
         )
-
+        # ==========================================
+    # Get All Consultations
     # ==========================================
-    # Get All Prescriptions
-    # ==========================================
 
-    async def get_all_prescriptions(
+    async def get_all_consultations(
 
         self,
 
@@ -299,7 +305,7 @@ class PrescriptionService:
 
         patient_id: str | None = None,
 
-        status: PrescriptionStatus | None = None,
+        status: ConsultationStatus | None = None,
 
         sort_by: str = "created_at",
 
@@ -307,7 +313,7 @@ class PrescriptionService:
 
     ):
 
-        result = await self.prescription_repo.get_all_prescriptions(
+        result = await self.consultation_repo.get_all_consultations(
 
             hospital_id=hospital_id,
 
@@ -348,40 +354,40 @@ class PrescriptionService:
         )
 
     # ==========================================
-    # Update Prescription
+    # Update Consultation
     # ==========================================
 
-    async def update_prescription(
+    async def update_consultation(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str,
+        consultation_id: str,
 
-        prescription_data
+        consultation_data
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        consultation = await self.consultation_repo.get_by_consultation_id(
 
             hospital_id,
 
-            prescription_id
+            consultation_id
 
         )
 
-        if not prescription:
+        if not consultation:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Consultation not found"
 
             )
 
-        update_data = prescription_data.model_dump(
+        update_data = consultation_data.model_dump(
 
             exclude_unset=True,
 
@@ -389,11 +395,11 @@ class PrescriptionService:
 
         )
 
-        await self.prescription_repo.update_prescription(
+        await self.consultation_repo.update_consultation(
 
             hospital_id,
 
-            prescription_id,
+            consultation_id,
 
             update_data
 
@@ -403,12 +409,12 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription updated successfully"
+            "message": "Consultation updated successfully"
 
         }
 
     # ==========================================
-    # Update Status
+    # Update Consultation Status
     # ==========================================
 
     async def update_status(
@@ -417,35 +423,35 @@ class PrescriptionService:
 
         hospital_id: str,
 
-        prescription_id: str,
+        consultation_id: str,
 
         status_data
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        consultation = await self.consultation_repo.get_by_consultation_id(
 
             hospital_id,
 
-            prescription_id
+            consultation_id
 
         )
 
-        if not prescription:
+        if not consultation:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Consultation not found"
 
             )
 
-        await self.prescription_repo.update_status(
+        await self.consultation_repo.update_status(
 
             hospital_id,
 
-            prescription_id,
+            consultation_id,
 
             status_data.status
 
@@ -455,47 +461,47 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription status updated successfully"
+            "message": "Consultation status updated successfully"
 
         }
 
     # ==========================================
-    # Delete Prescription
+    # Delete Consultation
     # ==========================================
 
-    async def delete_prescription(
+    async def delete_consultation(
 
         self,
 
         hospital_id: str,
 
-        prescription_id: str
+        consultation_id: str
 
     ):
 
-        prescription = await self.prescription_repo.get_by_prescription_id(
+        consultation = await self.consultation_repo.get_by_consultation_id(
 
             hospital_id,
 
-            prescription_id
+            consultation_id
 
         )
 
-        if not prescription:
+        if not consultation:
 
             raise HTTPException(
 
                 status_code=status.HTTP_404_NOT_FOUND,
 
-                detail="Prescription not found"
+                detail="Consultation not found"
 
             )
 
-        await self.prescription_repo.delete_prescription(
+        await self.consultation_repo.delete_consultation(
 
             hospital_id,
 
-            prescription_id
+            consultation_id
 
         )
 
@@ -503,6 +509,6 @@ class PrescriptionService:
 
             "success": True,
 
-            "message": "Prescription deleted successfully"
+            "message": "Consultation deleted successfully"
 
         }

@@ -116,3 +116,45 @@ class IDGenerator:
         )
 
         return f"VIT-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_consultation_id(
+        counter_repo
+    ) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"consultation:{year}"
+
+        )
+
+        return f"CON-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_lab_order_id(
+        counter_repo
+    ) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"lab_order:{year}"
+
+        )
+
+        return f"LAB-{year}-{seq:05d}"
+
+    @staticmethod
+    async def generate_pharmacy_id(counter_repo)->str:
+        year = IDGenerator.get_current_year()
+        
+        seq = await counter_repo.get_next_sequence(
+
+            f"pharmacy:{year}"
+
+        )
+
+        return f"PHARM-{year}-{seq:05d}"
+
+       

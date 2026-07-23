@@ -20,9 +20,7 @@ class VitalCreate(BaseModel):
 
     appointment_id: str
 
-    patient_id: str
-
-    doctor_id: str
+    
 
     height_cm: float | None = Field(
         default=None,

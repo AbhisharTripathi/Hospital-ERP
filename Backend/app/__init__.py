@@ -18,12 +18,13 @@ from .api.v1.appointment import router as appointment_router
 from .api.v1.dashboard import router as dashboard_router
 
 from .api.v1.billing import router as billing_router
-from .api.v1.prescription import (
-    router as prescription_router
-)
-from .api.v1.vitals import (
-    router as vital_router
-)
+from .api.v1.prescription import (router as prescription_router)
+from .api.v1.vitals import (router as vital_router)
+from .api.v1.consultation import (router as consultation_router)
+from app.api.v1.lab_order import (router as lab_order_router)
+from app.api.v1.pharmacy import router as pharmacy_router
+
+
 def create_app():
 
     @asynccontextmanager
@@ -77,5 +78,11 @@ def create_app():
     app.include_router(billing_router)
     app.include_router(prescription_router)
     app.include_router(vital_router)
-    
+    app.include_router(consultation_router)
+    app.include_router(lab_order_router)
+    app.include_router(pharmacy_router)
+
+
+
+
     return app

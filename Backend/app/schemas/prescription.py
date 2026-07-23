@@ -16,9 +16,7 @@ class PrescriptionCreate(BaseModel):
 
     appointment_id: str
 
-    patient_id: str
-
-    doctor_id: str
+    
 
     diagnosis: str = Field(
         min_length=3,
@@ -95,3 +93,7 @@ class PrescriptionResponse(BaseModel):
     created_at: datetime
 
     updated_at: datetime
+
+
+
+    

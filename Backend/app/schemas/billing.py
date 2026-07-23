@@ -50,9 +50,7 @@ class BillItemResponse(BaseModel):
 
 class BillingCreate(BaseModel):
 
-    patient_id: str
-
-    doctor_id: str
+    
 
     appointment_id: str | None = None
 
