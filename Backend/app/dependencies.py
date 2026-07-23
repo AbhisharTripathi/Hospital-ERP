@@ -43,6 +43,23 @@ from app.services.doctor_schedule import (
 )
 from app.repositories.appointment import AppointmentRepository
 from app.services.appointment import AppointmentService
+from app.repositories.dashboard import DashboardRepository
+
+from app.services.dashboard import DashboardService
+from app.repositories.billing import BillingRepository
+from app.services.billing import BillingService
+from app.repositories.prescription import (
+    PrescriptionRepository
+)
+
+from app.services.prescription import (
+    PrescriptionService
+)
+from app.repositories.vitals import VitalRepository
+
+from app.services.vitals import VitalService
+
+
 security = HTTPBearer()
 
 
@@ -104,6 +121,44 @@ def get_department_repository(
 ) -> DepartmentRepository:
 
     return DepartmentRepository(db)
+
+def get_dashboard_repository(
+    db: AsyncIOMotorDatabase = Depends(
+        get_db
+    )
+) -> DashboardRepository:
+
+    return DashboardRepository(db)
+def get_appointment_repository(
+    db=Depends(get_db)
+):
+    return AppointmentRepository(db)
+
+def get_vital_repository(
+    db=Depends(get_db)
+):
+
+    return VitalRepository(
+        db
+    )
+
+def get_billing_repository(
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> BillingRepository:
+
+    return BillingRepository(db)
+
+# ===========================
+# Prescription Repository
+# ===========================
+
+def get_prescription_repository(
+
+    db=Depends(get_db)
+
+):
+
+    return PrescriptionRepository(db)
 
 
 # ==========================
@@ -266,7 +321,181 @@ def get_user_service(
     )
 
 
+def get_dashboard_service(
 
+    dashboard_repository: DashboardRepository = Depends(
+        get_dashboard_repository
+    )
+
+) -> DashboardService:
+
+    return DashboardService(
+
+        dashboard_repository=dashboard_repository
+
+    )
+
+# ===========================
+# Appointment Service
+# ===========================
+
+
+
+
+def get_appointment_service(
+
+    appointment_repository: AppointmentRepository = Depends(
+        get_appointment_repository
+    ),
+
+    patient_repository: PatientRepository = Depends(
+        get_patient_repository
+    ),
+
+    doctor_repository: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    doctor_schedule_repository: DoctorScheduleRepository = Depends(
+        get_doctor_schedule_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+):
+
+    return AppointmentService(
+
+        appointment_repository=appointment_repository,
+
+        patient_repository=patient_repository,
+
+        doctor_repository=doctor_repository,
+
+        schedule_repository=doctor_schedule_repository,
+
+        counter_repository=counter_repository
+
+    )
+
+def get_vital_service(
+
+    vital_repository: VitalRepository = Depends(
+        get_vital_repository
+    ),
+
+    appointment_repository: AppointmentRepository = Depends(
+        get_appointment_repository
+    ),
+
+    patient_repository: PatientRepository = Depends(
+        get_patient_repository
+    ),
+
+    doctor_repository: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+):
+
+    return VitalService(
+
+        vital_repository=vital_repository,
+
+        appointment_repository=appointment_repository,
+
+        patient_repository=patient_repository,
+
+        doctor_repository=doctor_repository,
+
+        counter_repository=counter_repository
+
+    )
+def get_billing_service(
+
+    billing_repository: BillingRepository = Depends(
+        get_billing_repository
+    ),
+
+    patient_repository: PatientRepository = Depends(
+        get_patient_repository
+    ),
+
+    doctor_repository: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    appointment_repository: AppointmentRepository = Depends(
+        get_appointment_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+) -> BillingService:
+
+    return BillingService(
+
+        billing_repository=billing_repository,
+
+        patient_repository=patient_repository,
+
+        doctor_repository=doctor_repository,
+
+        appointment_repository=appointment_repository,
+
+        counter_repository=counter_repository
+
+    )
+
+# ===========================
+# Prescription Service
+# ===========================
+
+def get_prescription_service(
+
+    prescription_repository: PrescriptionRepository = Depends(
+        get_prescription_repository
+    ),
+
+    appointment_repository: AppointmentRepository = Depends(
+        get_appointment_repository
+    ),
+
+    patient_repository: PatientRepository = Depends(
+        get_patient_repository
+    ),
+
+    doctor_repository: DoctorRepository = Depends(
+        get_doctor_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+):
+
+    return PrescriptionService(
+
+        prescription_repository=prescription_repository,
+
+        appointment_repository=appointment_repository,
+
+        patient_repository=patient_repository,
+
+        doctor_repository=doctor_repository,
+
+        counter_repository=counter_repository
+
+    )
 
 # ==========================
 # Authentication
@@ -359,53 +588,6 @@ def require_role(
 
 
 
-def get_appointment_repository(
-    db=Depends(get_db)
-):
-    return AppointmentRepository(db)
-
-
-# ===========================
-# Appointment Service
-# ===========================
 
 
 
-
-def get_appointment_service(
-
-    appointment_repository: AppointmentRepository = Depends(
-        get_appointment_repository
-    ),
-
-    patient_repository: PatientRepository = Depends(
-        get_patient_repository
-    ),
-
-    doctor_repository: DoctorRepository = Depends(
-        get_doctor_repository
-    ),
-
-    doctor_schedule_repository: DoctorScheduleRepository = Depends(
-        get_doctor_schedule_repository
-    ),
-
-    counter_repository: CountersRepository = Depends(
-        get_counters_repository
-    )
-
-):
-
-    return AppointmentService(
-
-        appointment_repository=appointment_repository,
-
-        patient_repository=patient_repository,
-
-        doctor_repository=doctor_repository,
-
-        schedule_repository=doctor_schedule_repository,
-
-        counter_repository=counter_repository
-
-    )

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,time
 
 from fastapi import HTTPException, status
 
@@ -44,6 +44,7 @@ class DoctorScheduleService:
 
         self.counter_repo = counter_repository
 
+
     def _build_schedule_response(
         self,
         schedule: dict
@@ -73,6 +74,7 @@ class DoctorScheduleService:
 
             updated_at=schedule["updated_at"]
         )
+   
     
     async def create_schedule(
         self,
@@ -105,25 +107,26 @@ class DoctorScheduleService:
                 day_of_week=schedule_data.day_of_week
 
         )
+        def to_time(val):
+                if isinstance(val, str):
+                    return time.fromisoformat(val)
+                return val
         for schedule in schedules:
+            # High-level safety: Dono ko time object bana lo pehle
+            s_start = to_time(schedule_data.start_time)
+            s_end = to_time(schedule_data.end_time)
+            
+            db_start = to_time(schedule["start_time"])
+            db_end = to_time(schedule["end_time"])
 
-            if (
-
-                schedule_data.start_time < schedule["end_time"]
-
-                and
-
-                schedule_data.end_time > schedule["start_time"]
-
-            ):
-
+            # Ab clean comparison hoga, bina kisi TypeError ke:
+            if s_start < db_end and s_end > db_start:
                 raise HTTPException(
-
-                    status_code=status.HTTP_409_CONFLICT,
-
-                    detail="Schedule overlaps with existing schedule"
-
+                    status_code=400,
+                    detail="Doctor schedule overlaps with an existing schedule."
                 )
+
+                
         schedule_id = await IDGenerator.generate_schedule_id(
             self.counter_repo
         )
