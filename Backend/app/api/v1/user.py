@@ -4,12 +4,14 @@ from app.dependencies import (
     require_role,
     
 )
-from app.models.user import UserRole
+from fastapi import Query
+from app.models.user import UserRole,UserStatus
 from app.schemas.user import (
     EmployeeCreate,
     EmployeeResponse,
     EmployeeUpdate,UpdateEmployeeStatus
 )
+from app.schemas.pagination import PaginatedResponse
 from app.services.user import UserService
 
 router = APIRouter(
@@ -41,22 +43,73 @@ async def create_employee(
 
 @router.get(
     "",
-    response_model=list[EmployeeResponse]
+    response_model=PaginatedResponse[EmployeeResponse]
 )
 async def get_all_users(
-   
-    current_user: dict = Depends(
+
+    page: int = Query(
+        default=1,
+        ge=1
+    ),
+
+    limit: int = Query(
+        default=20,
+        ge=1,
+        le=100
+    ),
+
+    search: str | None = Query(
+        default=None
+    ),
+
+    role: UserRole | None = Query(
+        default=None
+    ),
+
+    status: UserStatus | None = Query(
+        default=None
+    ),
+
+    sort_by: str = Query(
+        default="created_at"
+    ),
+
+    sort_order: int = Query(
+        default=-1
+    ),
+
+    current_user=Depends(
         require_role(
             UserRole.SUPER_ADMIN,
             UserRole.ADMIN
         )
     ),
+
     user_service: UserService = Depends(
         get_user_service
     )
+
 ):
-    
-    return await user_service.get_all_employees(current_user)
+
+    return await user_service.get_all_employees(
+
+        current_user=current_user,
+
+        page=page,
+
+        limit=limit,
+
+        search=search,
+
+        role=role,
+
+        status=status,
+
+        sort_by=sort_by,
+
+        sort_order=sort_order
+
+    )
 
 @router.get(
     "/{user_id}",

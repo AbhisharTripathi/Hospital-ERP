@@ -15,11 +15,13 @@ from app.schemas.doctor import (
     DoctorCreate,
     DoctorUpdate,
     DoctorResponse,
-    UpdateDoctorStatus
+    UpdateDoctorStatus,
+    DoctorStatus
 )
 
 from app.services.doctor import DoctorService
-
+from fastapi import Query
+from app.schemas.pagination import PaginatedResponse
 
 router = APIRouter(
     prefix="/doctors",
@@ -57,11 +59,40 @@ async def create_doctor_profile(
 
 @router.get(
     "",
-    response_model=list[DoctorResponse]
+    response_model=PaginatedResponse[DoctorResponse]
     
 )
 async def get_all_doctors(
 
+    page:int=Query(
+        default=1,
+        ge=1
+    ),
+
+    limit: int= Query(
+        default=1,
+        ge=1,
+        le=100
+    ),
+    search: str|None=Query(
+        default=None
+    ),
+
+    department_id: str| None =Query(
+        default=None
+    ),
+
+    status: DoctorStatus|None=Query(
+        default=None
+    ),
+
+    sort_by: str = Query(
+        default="created_at"
+    ),
+    sort_order: int=Query(
+        default=-1
+    ),
+   
     doctor_service: DoctorService = Depends(
         get_doctor_service
     ),
@@ -75,7 +106,14 @@ async def get_all_doctors(
 ):
 
     return await doctor_service.get_all_doctors(
-        current_user=current_user
+        current_user=current_user,
+        page=page,
+        limit=limit,
+        search=search,
+        department_id=department_id,
+        doctor_status=status,
+        sort_by=sort_by,
+        sort_order=sort_order
     )
 
 
