@@ -69,3 +69,92 @@ class IDGenerator:
         )
 
         return f"SCH-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_appointment_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"appointment:{year}"
+        )
+
+        return f"APP-{year}-{seq:05d}"
+
+    @staticmethod
+    async def generate_bill_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"bill:{year}"
+        )
+
+        return f"BILL-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_prescription_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"prescription:{year}"
+
+        )
+
+        return f"PX-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_vital_id(
+        counter_repo
+    ) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"vital:{year}"
+
+        )
+
+        return f"VIT-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_consultation_id(
+        counter_repo
+    ) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"consultation:{year}"
+
+        )
+
+        return f"CON-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_lab_order_id(
+        counter_repo
+    ) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+
+            f"lab_order:{year}"
+
+        )
+
+        return f"LAB-{year}-{seq:05d}"
+
+    @staticmethod
+    async def generate_pharmacy_id(counter_repo)->str:
+        year = IDGenerator.get_current_year()
+        
+        seq = await counter_repo.get_next_sequence(
+
+            f"pharmacy:{year}"
+
+        )
+
+        return f"PHARM-{year}-{seq:05d}"
+
+       

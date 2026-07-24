@@ -159,6 +159,500 @@ async def connect_mongo():
 
     )
 
+        # ==========================
+    # Prescription
+    # ==========================
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("prescription_id", 1)
+        ],
+
+        unique=True
+
+    )
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("appointment_id", 1)
+        ]
+
+    )
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("patient_id", 1)
+        ]
+
+    )
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("doctor_id", 1)
+        ]
+
+    )
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("status", 1)
+        ]
+
+    )
+
+    await db.prescriptions.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("created_at", -1)
+        ]
+
+    )
+    await db.appointments.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("appointment_date", 1)
+
+        ]
+
+    )
+
+    await db.appointments.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("status", 1)
+
+        ]
+
+    )
+
+    await db.appointments.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("doctor_id", 1),
+
+            ("appointment_date", 1)
+
+        ]
+
+    )
+    await db.appointments.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("appointment_date", -1),
+
+            ("appointment_time", -1)
+
+        ]
+
+    )
+    # ==========================
+    # Billing Indexes
+    # ==========================
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("bill_id", 1)
+        ],
+
+        unique=True
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("invoice_number", 1)
+        ],
+
+        unique=True
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("patient_id", 1)
+        ]
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("doctor_id", 1)
+        ]
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("appointment_id", 1)
+        ]
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("payment_status", 1)
+        ]
+
+    )
+
+    await db.billings.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("created_at", -1)
+        ]
+
+    )
+
+        # ==========================
+    # Vitals
+    # ==========================
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("vital_id", 1)
+        ],
+
+        unique=True
+
+    )
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("appointment_id", 1)
+        ],
+
+        unique=True
+
+    )
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("patient_id", 1)
+        ]
+
+    )
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("doctor_id", 1)
+        ]
+
+    )
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("status", 1)
+        ]
+
+    )
+
+    await db.vitals.create_index(
+
+        [
+            ("hospital_id", 1),
+            ("recorded_at", -1)
+        ]
+
+    )
+    # ==========================================
+    # Consultation Indexes
+    # ==========================================
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("consultation_id", 1)
+
+        ],
+
+        unique=True
+
+    )
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("appointment_id", 1)
+
+        ],
+
+        unique=True
+
+    )
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("patient_id", 1)
+
+        ]
+
+    )
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("doctor_id", 1)
+
+        ]
+
+    )
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("status", 1)
+
+        ]
+
+    )
+
+    await db.consultations.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("created_at", -1)
+
+        ]
+
+    )
+
+    # ==========================================
+    # Lab Orders Indexes
+    # ==========================================
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("lab_order_id", 1)
+
+        ],
+
+        unique=True
+
+    )
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("appointment_id", 1)
+
+        ],
+
+        unique=True
+
+    )
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("patient_id", 1)
+
+        ]
+
+    )
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("doctor_id", 1)
+
+        ]
+
+    )
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("status", 1)
+
+        ]
+
+    )
+
+    await db.lab_orders.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("created_at", -1)
+
+        ]
+
+    )
+    await db.pharmacy.create_index(
+
+        "pharmacy_id",
+
+        unique=True
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "prescription_id"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "patient_id"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "doctor_id"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "pharmacist_id"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "appointment_id"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        "status"
+
+    )
+
+    await db.pharmacy.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("created_at", -1)
+
+        ]
+
+    )
+
+    await db.pharmacy.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("patient_id", 1)
+
+        ]
+
+    )
+
+    await db.pharmacy.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("doctor_id", 1)
+
+        ]
+
+    )
+
+    await db.pharmacy.create_index(
+
+        [
+
+            ("hospital_id", 1),
+
+            ("pharmacist_id", 1)
+
+        ]
+
+    )
+
+       
+
 
 print("mongodb is successfully connected and indexs are ready")
     

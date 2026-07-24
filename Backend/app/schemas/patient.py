@@ -48,7 +48,7 @@ class PatientUpdate(BaseModel):
 
 class PatientResponse(BaseModel):
     patient_id: str
-
+    hospital_id: str
     first_name: str
     last_name: Optional[str]
 
