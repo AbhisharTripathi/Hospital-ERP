@@ -16,7 +16,8 @@ import ProtectedRoute from "@/features/auth/pages/ProtectedRoute.jsx"
 import NotFound from "@/pages/NotFound.jsx"
 import ReceptionistLayout from "../features/receptionist/layouts/ReceptionistLayout.jsx"
 import ReceptionistDashboard from "../features/receptionist/components/ReceptionistDashboard.jsx"
-import AdminDashboard from "../features/admin/components/AdminDashboard.jsx";
+import AdminDashboard from "../features/admin/pages/AdminDashboard.jsx";
+import AddDepartment from "../features/admin/pages/AddDepartment.jsx";
 import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
 import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
 
@@ -112,6 +113,10 @@ const router = createBrowserRouter([
                                     {
                                         path: "user/register",
                                         element: < UserRegisterPage />
+                                    },
+                                    {
+                                        path: "departments/register",
+                                        element: < AddDepartment />
                                     },
                                 ]                                
                             },

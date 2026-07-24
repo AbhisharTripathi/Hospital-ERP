@@ -1,6 +1,6 @@
 import Sidebar from "@/components/common/Sidebar.jsx";
 import SideNavLink from "@/components/common/SideNavLink.jsx";
-import { FaUserPlus, FaTachometerAlt } from "react-icons/fa";
+import { FaUserPlus, FaTachometerAlt, FaPlus } from "react-icons/fa";
 
 function AdminSidebar() {
   return (
@@ -15,6 +15,11 @@ function AdminSidebar() {
       <SideNavLink link="/admin/user/register"
         label="Create User"
         icon={<FaUserPlus />}
+      />
+
+      <SideNavLink link="/admin/departments/register"
+        label="Add Department"
+        icon={<FaPlus />}
       />
     </Sidebar>
   );
