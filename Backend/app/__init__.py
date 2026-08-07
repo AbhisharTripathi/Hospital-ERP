@@ -23,7 +23,7 @@ from .api.v1.vitals import (router as vital_router)
 from .api.v1.consultation import (router as consultation_router)
 from app.api.v1.lab_order import (router as lab_order_router)
 from app.api.v1.pharmacy import router as pharmacy_router
-
+from app.api.v1.medicine import router as medicine_router
 
 def create_app():
 
@@ -81,6 +81,7 @@ def create_app():
     app.include_router(consultation_router)
     app.include_router(lab_order_router)
     app.include_router(pharmacy_router)
+    app.include_router(medicine_router,prefix="/api/v1")
 
 
 

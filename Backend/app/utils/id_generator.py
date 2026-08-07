@@ -156,5 +156,14 @@ class IDGenerator:
         )
 
         return f"PHARM-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_medicine_id(counter_repo) -> str:
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"medicine:{year}"
+        )
+
+        return f"MED-{year}-{seq:05d}"
 
        
