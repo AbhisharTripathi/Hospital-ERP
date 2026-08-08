@@ -255,7 +255,7 @@ class PharmacyService:
             pharmacy.model_dump()
 
         )
-
+    
         return {
 
             "success": True,
