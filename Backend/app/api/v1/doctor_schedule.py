@@ -45,7 +45,8 @@ async def create_schedule(
     current_user=Depends(
         require_role(
             UserRole.SUPER_ADMIN,
-            UserRole.ADMIN
+            UserRole.ADMIN,
+            UserRole.DOCTOR
         )
     )
 ):

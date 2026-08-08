@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PatientCard from "../components/PatientCard.jsx";
 
-import { getPatients } from "../api/patientApi";
+import { getPatients } from "../api/patientApi.js";
 
 function PatientListPage() {
   const [patients, setPatients] = useState([]);
@@ -26,7 +26,7 @@ function PatientListPage() {
     try {
       setIsLoading(true);
 
-      const data = await getPatients();
+      const { data } = await getPatients();
 
       setPatients(data);
     } catch (err) {

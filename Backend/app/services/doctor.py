@@ -130,12 +130,12 @@ class DoctorService:
                 detail="Selected user is not a doctor"
             )
         
-        if user["status"] != UserStatus.ACTIVE:
+        # if user["status"] != UserStatus.ACTIVE:
 
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Doctor account is not active"
-            )
+        #     raise HTTPException(
+        #         status_code=status.HTTP_400_BAD_REQUEST,
+        #         detail="Doctor account is not active"
+        #     )
         
         department = await self.department_repo.get_by_department_id(
 
@@ -228,6 +228,9 @@ class DoctorService:
         await self.doctor_repo.create_doctor(
         doctor_model.model_dump(mode="json")
         )
+
+        await self.user_repo.update_user(user["user_id"], {"employee_id": doctor_id})
+
         try:
             await self.email_service.send_doctor_profile_created_email(
                 doctor_name=user["name"]["first"],

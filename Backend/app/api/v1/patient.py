@@ -176,6 +176,35 @@ async def get_patient_by_id(
         current_user=current_user
     )
 
+@router.get(
+    "/phone/{phone}",
+    response_model=PatientResponse
+)
+async def get_patient_by_phone(
+
+    phone: str,
+
+    patient_services: PatientServices = Depends(
+        get_patient_services
+    ),
+
+    current_user=Depends(
+        require_role(
+            UserRole.SUPER_ADMIN,
+            UserRole.ADMIN,
+            UserRole.RECEPTIONIST,
+            UserRole.DOCTOR,
+            UserRole.NURSE
+        )
+    )
+
+):
+
+    return await patient_services.get_patient_by_phone(
+        phone=phone,
+        current_user=current_user
+    )
+
 
 @router.put(
     "/{patient_id}"

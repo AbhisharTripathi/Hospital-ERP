@@ -188,18 +188,62 @@ class AppointmentRepository:
 
         skip = (page - 1) * limit
 
-        appointments = await self.db.appointments.find(
-            query
-        ).sort(
-            sort_by,
-            sort_order
-        ).skip(
-            skip
-        ).limit(
-            limit
-        ).to_list(
-            length=limit
-        )
+        pipeline = [
+            {
+                "$match": query
+            },
+            {
+                "$lookup": {
+                    "from": "patients",
+                    "localField": "patient_id",
+                    "foreignField": "patient_id",
+                    "as": "patient"
+                }
+            },
+            {
+                "$unwind": "$patient"
+            },
+            {
+                "$addFields": {
+                    "patient_name": {
+                        "$concat": [
+                            "$patient.first_name",
+                            " ",
+                            "$patient.last_name"
+                        ]
+                    }
+                }
+            },
+            {
+                "$unset": "patient"
+            },
+            {
+                "$sort": {
+                    sort_by: sort_order
+                }
+            },
+            {
+                "$skip": skip
+            },
+            {
+                "$limit": limit
+            }
+        ]
+
+        appointments = await self.db.appointments.aggregate(pipeline).to_list(length=limit)
+
+        # appointments = await self.db.appointments.find(
+        #     query
+        # ).sort(
+        #     sort_by,
+        #     sort_order
+        # ).skip(
+        #     skip
+        # ).limit(
+        #     limit
+        # ).to_list(
+        #     length=limit
+        # )
 
         return {
 

@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router-dom"
 
-import PatientCreatePage from "@/features/patients/pages/PatientCreatePage.jsx"
-import PatientListPage from "@/features/patients/pages/PatientListPage.jsx"
-import PatientDetailsPage from "@/features/patients/pages/PatientDetailsPage.jsx"
-import PatientEditPage from "@/features/patients/pages/PatientEditPage.jsx"
+import PatientCreatePage from "@/features/receptionist/pages/PatientCreatePage.jsx"
+import PatientListPage from "@/features/receptionist/pages/PatientListPage.jsx"
+import PatientDetailsPage from "@/features/receptionist/pages/PatientDetailsPage.jsx"
+import PatientEditPage from "@/features/receptionist/pages/PatientEditPage.jsx"
 import AppLayout from "@/layouts/AppLayout.jsx";
 
 import Welcome from "@/pages/Welcome.jsx"
@@ -16,7 +16,7 @@ import ProtectedRoute from "@/features/auth/pages/ProtectedRoute.jsx"
 import NotFound from "@/pages/NotFound.jsx"
 import ReceptionistLayout from "../features/receptionist/layouts/ReceptionistLayout.jsx"
 import ReceptionistDashboard from "../features/receptionist/components/ReceptionistDashboard.jsx"
-import AdminDashboard from "../features/admin/pages/AdminDashboard.jsx";
+import AdminDashboardPage from "../features/admin/pages/AdminDashboardPage.jsx";
 import AddDepartment from "../features/admin/pages/AddDepartment.jsx";
 import UserRegisterPage from "../features/admin/pages/UserRegisterPage.jsx";
 import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
@@ -24,9 +24,23 @@ import { AdminLayout } from "../features/admin/layouts/AdminLayout.jsx"
 import OwnerRegisterPage from "@/features/owner/pages/OwnerRegisterPage2.jsx"
 import UserSetPasswordPage from "@/features/auth/pages/UserSetPasswordPage.jsx"
 
+import DoctorLayout from "../features/doctors/layouts/DoctorLayout.jsx";
+import DoctorDashboardPage from "../features/doctors/pages/DoctorDashboardPage.jsx";
+import DoctorSchedulePage from "../features/doctors/pages/DoctorSchedulePage.jsx";
+import DoctorAppointmentsPage from "../features/doctors/pages/DoctorAppointmentsPage.jsx";
+import DoctorDealAppointmentPage from "../features/doctors/pages/DoctorDealAppointmentPage.jsx";
+
+import CreateAppointmentPage from "../features/receptionist/pages/CreateAppointmentPage.jsx";
+
+import DeveloperPage from "@/pages/DeveloperPage.jsx";
+
 
 
 const router = createBrowserRouter([
+    {
+        path: "/dev",
+        element: <DeveloperPage />,
+    },
     {
         path: "/welcome",
         element: <Welcome />,
@@ -95,6 +109,10 @@ const router = createBrowserRouter([
                                         path: "patients/:patientId/edit",
                                         element: <PatientEditPage />,
                                     },
+                                    {
+                                        path: "appointments/create",
+                                        element: <CreateAppointmentPage />,
+                                    },
                                 ]
                             }
                         ]
@@ -108,7 +126,7 @@ const router = createBrowserRouter([
                                 children: [
                                     {
                                         index: true,
-                                        element: <AdminDashboard />
+                                        element: <AdminDashboardPage />
                                     },
                                     {
                                         path: "user/register",
@@ -120,6 +138,33 @@ const router = createBrowserRouter([
                                     },
                                 ]                                
                             },
+                        ]
+                    },
+                    {
+                        path: "doctor",
+                        element: <ProtectedRoute allowedRoles={["DOCTOR"]} />,
+                        children: [
+                            {
+                                element: <DoctorLayout />,
+                                children: [
+                                    {
+                                        index: true,
+                                        element: <DoctorDashboardPage />
+                                    },
+                                    {
+                                        path: "schedule",
+                                        element: <DoctorSchedulePage />
+                                    },
+                                    {
+                                        path: "appointments",
+                                        element: <DoctorAppointmentsPage />
+                                    },
+                                    {
+                                        path: "appointments/:appointment_id",
+                                        element: <DoctorDealAppointmentPage />
+                                    },
+                                ]
+                            }
                         ]
                     },
                 ]

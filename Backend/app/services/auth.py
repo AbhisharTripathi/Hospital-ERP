@@ -23,6 +23,8 @@ class AuthService:
     ):
         self.user_repo = user_repository
         self.counter_repo=counter_repository
+
+
     async def login(
             self,
             login_data:LoginRequest
@@ -70,7 +72,8 @@ class AuthService:
             user={
                 "user_id": user["user_id"],
                 "email": user["email"],
-                "role": user["role"]
+                "role": user["role"],
+                "employee_id": user.get("employee_id", "")
             }
         )
 

@@ -29,6 +29,15 @@ export const getPatientById = async (
   return response.data;
 };
 
+export const getPatientByMobileNo = async (
+  mobileNo
+) => {
+  const response = await api.get(
+    `/patients/phone/${mobileNo}`
+  );
+  return response.data;
+}
+
 export const updatePatient = async (
   patientId,
   data

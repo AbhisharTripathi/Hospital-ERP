@@ -68,7 +68,8 @@ async def get_all_departments(
     current_user = Depends(
         require_role(
             UserRole.SUPER_ADMIN,
-            UserRole.ADMIN
+            UserRole.ADMIN,
+            UserRole.RECEPTIONIST
         )
     ),
 

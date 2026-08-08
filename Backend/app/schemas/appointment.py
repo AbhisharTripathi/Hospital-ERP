@@ -65,6 +65,8 @@ class AppointmentResponse(BaseModel):
 
     patient_id: str
 
+    patient_name: str = ""
+
     doctor_id: str
 
     department_id: str

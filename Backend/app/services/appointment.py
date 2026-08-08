@@ -72,6 +72,8 @@ class AppointmentService:
             hospital_id=appointment["hospital_id"],
 
             patient_id=appointment["patient_id"],
+            
+            patient_name=appointment["patient_name"],
 
             doctor_id=appointment["doctor_id"],
 

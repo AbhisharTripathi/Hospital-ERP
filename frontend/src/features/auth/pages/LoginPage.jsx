@@ -49,9 +49,10 @@ function LoginPage() {
       navigate("/");
     } catch (error) {
       console.error(error);
+      console.log(error?.response?.data?.message)
 
       setServerError(
-        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
           "Invalid credentials"
       );
     }

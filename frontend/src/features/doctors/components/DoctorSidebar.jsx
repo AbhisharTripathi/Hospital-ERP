@@ -2,23 +2,23 @@ import Sidebar from "@/components/common/Sidebar.jsx";
 import SideNavLink from "@/components/common/SideNavLink.jsx";
 import { FaUserPlus, FaTachometerAlt, FaPlus } from "react-icons/fa";
 
-function AdminSidebar() {
+function DoctorSidebar() {
   return (
 
     <Sidebar>
-      <SideNavLink link="/admin"
+      <SideNavLink link="/doctor"
         label="Dashboard"
         icon={<FaTachometerAlt />}
         end
       />  
 
-      <SideNavLink link="/admin/user/register"
-        label="Create User"
+      <SideNavLink link="/doctor/appointments"
+        label="Appointments"
         icon={<FaUserPlus />}
       />
 
-      <SideNavLink link="/admin/departments/register"
-        label="Add Department"
+      <SideNavLink link="/doctor/schedule"
+        label="Schedule"
         icon={<FaPlus />}
       />
 
@@ -26,4 +26,4 @@ function AdminSidebar() {
   );
 }
 
-export default AdminSidebar;
+export default DoctorSidebar;

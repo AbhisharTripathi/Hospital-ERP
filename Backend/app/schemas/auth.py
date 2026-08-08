@@ -12,6 +12,7 @@ class UserInfo(BaseModel):
     user_id: str
     email: EmailStr
     role: str
+    employee_id: str
 
 class TokenResponse(BaseModel):
     access_token: str

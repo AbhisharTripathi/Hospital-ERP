@@ -242,6 +242,56 @@ class PatientServices:
             updated_at=patient["updated_at"]
 
         )
+    
+    async def get_patient_by_phone(
+        self,
+        current_user,
+        phone: str
+    ):
+
+        patient = await self.patient_repo.get_by_phone(
+            hospital_id=current_user["hospital_id"],
+            phone=phone
+        )
+
+        if not patient:
+            raise HTTPException(
+                status_code=404,
+                detail="Patient not found."
+            )
+
+        return PatientResponse(
+            hospital_id=patient["hospital_id"],
+            patient_id=patient["patient_id"],
+
+            first_name=patient["first_name"],
+            last_name=patient.get("last_name"),
+
+            gender=patient["gender"],
+            dob=patient["dob"],
+
+            phone=patient["phone"],
+            email=patient.get("email"),
+
+            blood_group=patient.get("blood_group"),
+
+            address=patient.get("address"),
+
+            emergency_contact_name=patient.get(
+                "emergency_contact_name"
+            ),
+            emergency_contact_phone=patient.get(
+                "emergency_contact_phone"
+            ),
+
+            status=patient["status"],
+
+            notes=patient.get("notes"),
+
+            created_at=patient["created_at"],
+            updated_at=patient["updated_at"]
+
+        )
 
     async def search_patients(
         self,

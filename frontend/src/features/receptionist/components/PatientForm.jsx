@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema } from "../validation/patientSchema";
+import { FaSearch } from "react-icons/fa"
 
 import FormSection from "@/components/forms/FormSection.jsx";
 import FormField from "@/components/forms/FormField.jsx";
@@ -10,25 +11,34 @@ import Select from "@/components/forms/Select.jsx";
 import Textarea from "@/components/forms/Textarea.jsx";
 import SubmitButton from "@/components/forms/SubmitButton.jsx";
 
-function PatientForm({
+import { getPatientByMobileNo } from "../api/patientApi";
+
+function PatientFormFunction({
   initialData = null,
   onSubmit,
   isLoading = false,
   submitText = "Save Patient",
-  showPassword = false
-}) {
+  showPassword = false,
+  createNewPatient = false
+}, ref) {
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(patientSchema),
   });
 
+  useImperativeHandle(ref, () => ({
+    handleSubmit,
+    reset,
+  }));
+
   useEffect(() => {
-    if(!initialData) return;
+    if (!initialData) return;
     reset({
       first_name: initialData.first_name || "",
       last_name: initialData.last_name || "",
@@ -46,6 +56,26 @@ function PatientForm({
       notes: initialData.notes || "",
     });
   }, [initialData, reset]);
+
+  const phone = createNewPatient ? watch("phone") : false;
+  const fetchPatient = async () => {
+    if (!phone) return;
+    try {
+      let response;
+      response = await getPatientByMobileNo(phone);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+      console.log(err?.response?.data?.message);
+    }
+  }
+
+  useEffect(() => {
+
+    const id = setTimeout(fetchPatient, 3000);
+
+    return () => clearTimeout(id);
+  }, [phone]);
 
   const bloodGroups = [
     "A+",
@@ -91,20 +121,32 @@ function PatientForm({
           required
           error={errors.phone}
         >
-          <Input {...register("phone")} />
+          <div className="flex relative items-center">
+            <Input {...register("phone")} />
+
+            <button
+              type="button"
+              disabled={!createNewPatient}
+              className="rounded-full h-8 w-8 absolute right-1 bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center"
+              onClick={fetchPatient}
+            ><FaSearch /></button>
+          </div>
         </FormField>
+
+
 
         <FormField
           label="Email"
+          required
           error={errors.email}
         >
           <Input type="email" {...register("email")} />
         </FormField>
-        
+
         <FormField
           label="Gender"
           required
-          >
+        >
           <Select {...register("gender")} >
             {
               genders.map((group) => (
@@ -118,7 +160,7 @@ function PatientForm({
           label="Date of Birth"
           required
           error={errors.dob}
-          >
+        >
           <Input type="date" {...register("dob")} />
         </FormField>
 
@@ -170,7 +212,7 @@ function PatientForm({
         >
           <Input {...register("emergency_contact_phone")} />
         </FormField>
-        
+
         <FormField
           label="Address"
           error={errors.address}
@@ -178,8 +220,8 @@ function PatientForm({
           <Textarea {...register("address")} rows={3} />
         </FormField>
       </FormSection>
-      
-      <div className="md:col-span-2 flex justify-end">
+
+      <div className={`md:col-span-2 flex justify-end ${createNewPatient && "hidden"}`}>
         <SubmitButton isLoading={isLoading}>
           {submitText}
         </SubmitButton>
@@ -189,4 +231,6 @@ function PatientForm({
   );
 }
 
+const PatientForm = forwardRef(PatientFormFunction);
+PatientForm.displayName = "PatientForm";
 export default PatientForm;

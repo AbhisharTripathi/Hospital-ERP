@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { getPatientById } from "../api/patientApi";
+import InfoField from "@/features/receptionist/components/InfoField.jsx";
 
 function PatientDetailsPage() {
   const { patientId } = useParams();
@@ -156,20 +157,6 @@ function PatientDetailsPage() {
 
         </div>
       </div>
-    </div>
-  );
-}
-
-function InfoField({ label, value }) {
-  return (
-    <div>
-      <p className="text-sm text-gray-500">
-        {label}
-      </p>
-
-      <p className="font-medium mt-1">
-        {value || "-"}
-      </p>
     </div>
   );
 }

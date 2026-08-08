@@ -86,8 +86,10 @@ class DoctorScheduleService:
             doctor_id=schedule_data.doctor_id,
 
             hospital_id=current_user["hospital_id"]
-
         )
+        print("doctor", doctor)
+        print("schedule_data", schedule_data)
+        print("current_user", current_user)
 
         if not doctor:
 

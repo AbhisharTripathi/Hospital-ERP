@@ -7,19 +7,38 @@ import Textarea from "@/components/forms/Textarea.jsx";
 import SubmitButton from "@/components/forms/SubmitButton.jsx";
 import FormSection from "@/components/forms/FormSection.jsx";
 
+import { registerDepartment } from "../api/adminApi.js"
+
 export default function AddDepartment() {
 
     const {
         register,
-        onSubmit,
+        handleSubmit,
+        reset,
         formState: {
             errors,
             isSubmitting
         }
     } = useForm();
 
+    const onSubmit = (data) => {
+        const payload = {
+            name: data.name,
+            code: data.code,
+            description: data.description
+        };
+        try {
+            registerDepartment(payload);
+            reset();
+            alert("Department registered successfully!");
+        } catch (error) {
+            console.error("Error registering department:", error);
+            alert("Failed to register department.");
+        }
+    }
+
     return (
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <FormSection title="Add Department">
                 <FormField label="Department Name" required error={errors.name}>
                     <Input

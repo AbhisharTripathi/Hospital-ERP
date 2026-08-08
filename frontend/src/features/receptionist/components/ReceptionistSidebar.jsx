@@ -24,6 +24,12 @@ function ReceptionistSidebar() {
           icon={<FaUsers />}
           end
         />
+
+        <SideNavLink link="/receptionist/appointments/create"
+          label="New Appointment"
+          icon={<FaUserPlus />}
+        />
+
     </Sidebar>
   );
 }
