@@ -65,6 +65,10 @@ from app.services.lab_order import LabOrderService
 from app.repositories.pharmacy import PharmacyRepository
 
 from app.services.pharmacy import PharmacyService
+from app.repositories.medicine import MedicineRepository
+from app.services.medicine import MedicineService
+
+
 
 security = HTTPBearer()
 
@@ -194,6 +198,8 @@ def get_lab_order_repository(
 
     return LabOrderRepository(db)
 
+
+
 def get_pharmacy_repository(
 
     db=Depends(get_db)
@@ -201,6 +207,11 @@ def get_pharmacy_repository(
 ):
 
     return PharmacyRepository(db)
+
+def get_medicine_repository(db=Depends(get_db)):
+    return MedicineRepository(db)
+
+
 # ==========================
 # Services
 # ==========================
@@ -649,6 +660,19 @@ def get_pharmacy_service(
 
         counter_repository
 
+    )
+def get_medicine_service(
+    medicine_repository=Depends(
+        get_medicine_repository
+    ),
+    counter_repository: CountersRepository = Depends(
+            get_counters_repository
+    )
+):
+
+    return MedicineService(
+        medicine_repository=medicine_repository,
+        counter_repository=counter_repository
     )
 
 # ==========================

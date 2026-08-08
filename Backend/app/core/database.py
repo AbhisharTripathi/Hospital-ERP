@@ -650,6 +650,46 @@ async def connect_mongo():
         ]
 
     )
+    # Medicine ID per hospital unique
+    await db.medicines.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_id", 1)
+        ],
+        unique=True
+    )
+
+    await db.medicines.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_name", 1),
+            ("generic_name", 1),
+            ("strength", 1),
+            ("dosage_form", 1),
+            ("manufacturer", 1)
+        ]
+    )
+    await db.medicines.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_name", 1)
+        ]
+    )
+
+    await db.medicines.create_index(
+        [
+            ("hospital_id", 1),
+            ("generic_name", 1)
+        ]
+    )
+
+    await db.medicines.create_index(
+    [
+        ("hospital_id", 1),
+        ("is_active", 1)
+    ]
+)
+
 
        
 
