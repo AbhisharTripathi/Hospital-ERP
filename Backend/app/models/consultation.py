@@ -74,3 +74,4 @@ class ConsultationModel(BaseModel):
         )
 
     )
+    

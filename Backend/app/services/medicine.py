@@ -4,10 +4,21 @@ from app.models.medicine import MedicineModel
 
 from app.schemas.medicine import (
     MedicineCreate,
-    MedicineUpdate
+    MedicineUpdate,
+    MedicineResponse
 )
 
-from app.utils.id_generator import IDGenerator
+from app.repositories.medicine import (
+    MedicineRepository
+)
+
+from app.repositories.counters import (
+    CountersRepository
+)
+
+from app.utils.id_generator import (
+    IDGenerator
+)
 
 from app.schemas.pagination import (
     PaginatedResponse,
@@ -19,33 +30,65 @@ class MedicineService:
 
     def __init__(
         self,
-        medicine_repository,
-        counter_repository
+        medicine_repository: MedicineRepository,
+        counter_repository: CountersRepository
     ):
 
         self.medicine_repo = medicine_repository
-
         self.counter_repo = counter_repository
 
-    # ==========================================
-    # Create Medicine
-    # ==========================================
+    # --------------------------------------------------
+    # Response Builder
+    # --------------------------------------------------
 
-    async def create_medicine(
-
+    def _build_response(
         self,
-
-        hospital_id: str,
-
-        medicine_data: MedicineCreate,
-
-        current_user
-
+        medicine: dict
     ):
 
-        # --------------------------------------
-        # Check Duplicate Medicine
-        # --------------------------------------
+        return MedicineResponse(
+
+            medicine_id=medicine["medicine_id"],
+
+            hospital_id=medicine["hospital_id"],
+
+            medicine_name=medicine["medicine_name"],
+
+            generic_name=medicine.get("generic_name"),
+
+            strength=medicine["strength"],
+
+            dosage_form=medicine["dosage_form"],
+
+            manufacturer=medicine.get("manufacturer"),
+
+            unit=medicine["unit"],
+
+            reorder_level=medicine["reorder_level"],
+
+            is_active=medicine["is_active"],
+
+            created_by=medicine["created_by"],
+
+            created_at=medicine["created_at"],
+
+            updated_at=medicine["updated_at"]
+
+        )
+
+    # --------------------------------------------------
+    # Create Medicine
+    # --------------------------------------------------
+
+    async def create_medicine(
+        self,
+        current_user,
+        medicine_data: MedicineCreate
+    ):
+
+        hospital_id = current_user["hospital_id"]
+
+        # ---------------- Duplicate Validation ----------------
 
         existing = await self.medicine_repo.find_duplicate(
 
@@ -73,9 +116,7 @@ class MedicineService:
 
             )
 
-        # --------------------------------------
-        # Generate Medicine ID
-        # --------------------------------------
+        # ---------------- Medicine ID ----------------
 
         medicine_id = await IDGenerator.generate_medicine_id(
 
@@ -83,11 +124,9 @@ class MedicineService:
 
         )
 
-        # --------------------------------------
-        # Create Medicine Model
-        # --------------------------------------
+        # ---------------- Model ----------------
 
-        medicine = MedicineModel(
+        medicine_model = MedicineModel(
 
             medicine_id=medicine_id,
 
@@ -113,67 +152,34 @@ class MedicineService:
 
         )
 
-        # --------------------------------------
-        # Save
-        # --------------------------------------
+        # ---------------- Create ----------------
 
         await self.medicine_repo.create_medicine(
 
-            medicine.model_dump()
+            medicine_model.model_dump(mode="json")
 
         )
 
-        return medicine
+        # ---------------- Response ----------------
 
-    # ==========================================
-    # Get Medicine By ID
-    # ==========================================
+        return self._build_response(
 
-    async def get_by_medicine_id(
-
-        self,
-
-        hospital_id: str,
-
-        medicine_id: str
-
-    ):
-
-        medicine = await self.medicine_repo.get_by_medicine_id(
-
-            hospital_id,
-
-            medicine_id
+            medicine_model.model_dump(mode="json")
 
         )
 
-        if not medicine:
-
-            raise HTTPException(
-
-                status_code=status.HTTP_404_NOT_FOUND,
-
-                detail="Medicine not found"
-
-            )
-
-        return medicine
-
-    # ==========================================
+    # --------------------------------------------------
     # Search / Autocomplete
-    # ==========================================
+    # --------------------------------------------------
 
     async def search_medicines(
-
         self,
-
-        hospital_id: str,
-
+        current_user,
         search: str,
-
         limit: int = 10
-
     ):
+
+        hospital_id = current_user["hospital_id"]
 
         search = search.strip()
 
@@ -185,7 +191,7 @@ class MedicineService:
 
             return []
 
-        return await self.medicine_repo.search_medicines(
+        medicines = await self.medicine_repo.search_medicines(
 
             hospital_id=hospital_id,
 
@@ -195,37 +201,34 @@ class MedicineService:
 
         )
 
-    # ==========================================
+        return [
+
+            self._build_response(item)
+
+            for item in medicines
+
+        ]
+
+    # --------------------------------------------------
     # Get All Medicines
-    # ==========================================
+    # --------------------------------------------------
 
     async def get_all_medicines(
-
         self,
-
-        hospital_id: str,
-
+        current_user,
         page: int = 1,
-
         limit: int = 20,
-
         search: str | None = None,
-
         dosage_form=None,
-
         manufacturer: str | None = None,
-
         is_active: bool | None = None,
-
         sort_by: str = "created_at",
-
         sort_order: int = -1
-
     ):
 
         result = await self.medicine_repo.get_all_medicines(
 
-            hospital_id=hospital_id,
+            hospital_id=current_user["hospital_id"],
 
             page=page,
 
@@ -245,49 +248,46 @@ class MedicineService:
 
         )
 
-        pagination = build_pagination_meta(
+        medicines = [
 
-            page=page,
+            self._build_response(item)
 
-            limit=limit,
+            for item in result["items"]
 
-            total_records=result["total"]
+        ]
 
-        )
+        return {
 
-        return PaginatedResponse(
+            "items": medicines,
 
-            data=result["items"],
+            "total": result["total"],
 
-            pagination=pagination
+            "page": page,
 
-        )
+            "limit": limit,
 
-    # ==========================================
-    # Update Medicine
-    # ==========================================
+            "total_pages": (
 
-    async def update_medicine(
+                result["total"] + limit - 1
 
+            ) // limit
+
+        }
+        # --------------------------------------------------
+    # Get Medicine By ID
+    # --------------------------------------------------
+
+    async def get_medicine_by_id(
         self,
-
-        hospital_id: str,
-
-        medicine_id: str,
-
-        medicine_data: MedicineUpdate
-
+        current_user,
+        medicine_id: str
     ):
-
-        # --------------------------------------
-        # Medicine Exists
-        # --------------------------------------
 
         medicine = await self.medicine_repo.get_by_medicine_id(
 
-            hospital_id,
+            hospital_id=current_user["hospital_id"],
 
-            medicine_id
+            medicine_id=medicine_id
 
         )
 
@@ -301,15 +301,46 @@ class MedicineService:
 
             )
 
-        # --------------------------------------
-        # Get Only Provided Fields
-        # --------------------------------------
+        return self._build_response(
+            medicine
+        )
+
+    # --------------------------------------------------
+    # Update Medicine
+    # --------------------------------------------------
+
+    async def update_medicine(
+        self,
+        current_user,
+        medicine_id: str,
+        medicine_data: MedicineUpdate
+    ):
+
+        medicine = await self.medicine_repo.get_by_medicine_id(
+
+            hospital_id=current_user["hospital_id"],
+
+            medicine_id=medicine_id
+
+        )
+
+        if not medicine:
+
+            raise HTTPException(
+
+                status_code=status.HTTP_404_NOT_FOUND,
+
+                detail="Medicine not found"
+
+            )
+
+        # ---------------- Update Data ----------------
 
         update_data = medicine_data.model_dump(
 
-            exclude_none=True,
+            exclude_unset=True,
 
-            exclude_unset=True
+            mode="json"
 
         )
 
@@ -319,53 +350,52 @@ class MedicineService:
 
                 status_code=status.HTTP_400_BAD_REQUEST,
 
-                detail="No fields provided for update"
+                detail="Nothing to update"
 
             )
 
-        # --------------------------------------
-        # Update
-        # --------------------------------------
+        # ---------------- Update ----------------
 
         await self.medicine_repo.update_medicine(
 
-            hospital_id,
+            hospital_id=current_user["hospital_id"],
 
-            medicine_id,
+            medicine_id=medicine_id,
 
-            update_data
+            update_data=update_data
 
         )
 
-        return {
+        # ---------------- Get Updated Medicine ----------------
 
-            "success": True,
+        updated = await self.medicine_repo.get_by_medicine_id(
 
-            "message": "Medicine updated successfully"
+            hospital_id=current_user["hospital_id"],
 
-        }
+            medicine_id=medicine_id
 
-    # ==========================================
-    # Activate / Deactivate
-    # ==========================================
+        )
+
+        return self._build_response(
+            updated
+        )
+
+    # --------------------------------------------------
+    # Update Medicine Status
+    # --------------------------------------------------
 
     async def update_status(
-
         self,
-
-        hospital_id: str,
-
+        current_user,
         medicine_id: str,
-
         is_active: bool
-
     ):
 
         medicine = await self.medicine_repo.get_by_medicine_id(
 
-            hospital_id,
+            hospital_id=current_user["hospital_id"],
 
-            medicine_id
+            medicine_id=medicine_id
 
         )
 
@@ -381,7 +411,12 @@ class MedicineService:
 
         if medicine["is_active"] == is_active:
 
-            state = "active" if is_active else "inactive"
+            state = (
+                "active"
+                if is_active
+                else
+                "inactive"
+            )
 
             raise HTTPException(
 
@@ -391,30 +426,29 @@ class MedicineService:
 
             )
 
+        # ---------------- Update Status ----------------
+
         await self.medicine_repo.update_status(
 
-            hospital_id,
+            hospital_id=current_user["hospital_id"],
 
-            medicine_id,
+            medicine_id=medicine_id,
 
-            is_active
+            is_active=is_active
 
         )
 
-        return {
+        # ---------------- Get Updated Medicine ----------------
 
-            "success": True,
+        updated = await self.medicine_repo.get_by_medicine_id(
 
-            "message": (
+            hospital_id=current_user["hospital_id"],
 
-                "Medicine activated successfully"
+            medicine_id=medicine_id
 
-                if is_active
+        )
 
-                else
-
-                "Medicine deactivated successfully"
-
-            )
-
-        }
+        return self._build_response(
+            updated
+        )
+    

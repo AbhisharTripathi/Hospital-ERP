@@ -51,11 +51,11 @@ class PrescriptionModel(BaseModel):
 
     doctor_id: str
 
-    diagnosis: str
+    # diagnosis: str
 
     advice: str | None = None
 
-    follow_up_date: date | None = None
+    # follow_up_date: date | None = None
 
     medicines: list[PrescriptionMedicine]
 

@@ -151,12 +151,12 @@ class PrescriptionRepository:
                     }
                 },
 
-                {
-                    "diagnosis": {
-                        "$regex": search,
-                        "$options": "i"
-                    }
-                }
+                # {
+                #     "diagnosis": {
+                #         "$regex": search,
+                #         "$options": "i"
+                #     }
+                # }
 
             ]
 

@@ -18,17 +18,17 @@ class PrescriptionCreate(BaseModel):
 
     
 
-    diagnosis: str = Field(
-        min_length=3,
-        max_length=1000
-    )
+    # diagnosis: str = Field(
+    #     min_length=3,
+    #     max_length=1000
+    # )
 
     advice: str | None = Field(
         default=None,
         max_length=1000
     )
 
-    follow_up_date: date | None = None
+    # follow_up_date: date | None = None
 
     medicines: list[PrescriptionMedicine]
 
@@ -39,18 +39,18 @@ class PrescriptionCreate(BaseModel):
 
 class PrescriptionUpdate(BaseModel):
 
-    diagnosis: str | None = Field(
-        default=None,
-        min_length=3,
-        max_length=1000
-    )
+    # diagnosis: str | None = Field(
+    #     default=None,
+    #     min_length=3,
+    #     max_length=1000
+    # )
 
     advice: str | None = Field(
         default=None,
         max_length=1000
     )
 
-    follow_up_date: date | None = None
+    # follow_up_date: date | None = None
 
     medicines: list[PrescriptionMedicine] | None = None
 
@@ -80,11 +80,11 @@ class PrescriptionResponse(BaseModel):
 
     doctor_id: str
 
-    diagnosis: str
+    # diagnosis: str
 
     advice: str | None
 
-    follow_up_date: date | None
+    # follow_up_date: date | None
 
     medicines: list[PrescriptionMedicine]
 

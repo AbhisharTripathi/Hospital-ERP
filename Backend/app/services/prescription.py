@@ -176,11 +176,11 @@ class PrescriptionService:
 
             appointment_id=appointment["appointment_id"],
 
-            diagnosis=prescription_data.diagnosis,
+            # diagnosis=prescription_data.diagnosis,
 
             advice=prescription_data.advice,
 
-            follow_up_date=prescription_data.follow_up_date,
+            #follow_up_date=prescription_data.follow_up_date,
 
             medicines=prescription_data.medicines,
 
