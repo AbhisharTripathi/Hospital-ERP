@@ -206,7 +206,7 @@ class PharmacyService:
 
                 PharmacyMedicine(
 
-                    medicine_name=medicine["medicine_name"],
+                    medicine_id=medicine["medicine_id"],
 
                     dosage=medicine["dosage"],
 

@@ -684,11 +684,94 @@ async def connect_mongo():
     )
 
     await db.medicines.create_index(
-    [
-        ("hospital_id", 1),
-        ("is_active", 1)
-    ]
-)
+        [
+            ("hospital_id", 1),
+            ("is_active", 1)
+        ]
+    )
+
+    # ==========================================
+    # Supplier Indexes
+    # ==========================================
+
+    await db.suppliers.create_index(
+        [
+            ("hospital_id", 1),
+            ("supplier_id", 1)
+        ],
+        unique=True
+    )
+
+    await db.suppliers.create_index(
+        [
+            ("hospital_id", 1),
+            ("supplier_name", 1)
+        ]
+    )
+
+    await db.suppliers.create_index(
+        [
+            ("hospital_id", 1),
+            ("is_active", 1)
+        ]
+    )
+
+    await db.suppliers.create_index(
+        [
+            ("hospital_id", 1),
+            ("phone", 1)
+        ]
+    )
+
+
+    # ==========================================
+    # Purchase Indexes
+    # ==========================================
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("purchase_id", 1)
+        ],
+        unique=True
+    )
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("supplier_id", 1)
+        ]
+    )
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("invoice_number", 1)
+        ]
+    )
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("invoice_date", -1)
+        ]
+    )
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("status", 1)
+        ]
+    )
+
+    await db.purchases.create_index(
+        [
+            ("hospital_id", 1),
+            ("created_at", -1)
+        ]
+    )
+
+    
 
 
        

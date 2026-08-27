@@ -24,8 +24,8 @@ class PharmacyStatus(str, Enum):
 # ==========================================
 
 class PharmacyMedicine(BaseModel):
-
-    medicine_name: str
+    medicine_id: str
+    
 
     dosage: str
 

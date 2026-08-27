@@ -67,8 +67,10 @@ from app.repositories.pharmacy import PharmacyRepository
 from app.services.pharmacy import PharmacyService
 from app.repositories.medicine import MedicineRepository
 from app.services.medicine import MedicineService
-
-
+from app.repositories.supplier import SupplierRepository
+from app.services.supplier import SupplierService
+from app.repositories.purchase import PurchaseRepository
+from app.services.purchase import PurchaseService
 
 security = HTTPBearer()
 
@@ -210,6 +212,32 @@ def get_pharmacy_repository(
 
 def get_medicine_repository(db=Depends(get_db)):
     return MedicineRepository(db)
+
+
+def get_supplier_repository(
+        db=Depends(get_db)
+
+)->SupplierRepository:
+    return SupplierRepository(db)
+
+
+def get_purchase_repository(
+    db=Depends(get_db)
+):
+    return PurchaseRepository(db)
+
+
+# def get_supplier_repository(
+#     db=Depends(get_db)
+# ):
+#     return SupplierRepository(db)
+
+
+# def get_medicine_repository(
+#     db=Depends(get_db)
+# ):
+#     return MedicineRepository(db)
+
 
 
 # ==========================
@@ -675,6 +703,42 @@ def get_medicine_service(
         counter_repository=counter_repository
     )
 
+
+def get_supplier_service(
+        supplier_repo:SupplierRepository=Depends(
+            get_supplier_repository
+        ),
+        counter_repo: CountersRepository=Depends(
+            get_counters_repository
+        )
+) -> SupplierService:
+
+    return SupplierService(
+        supplier_repository=supplier_repo,
+        counter_repository=counter_repo
+    )
+
+
+def get_purchase_service(
+    purchase_repo: PurchaseRepository = Depends(
+        get_purchase_repository
+    ),
+    supplier_repo: SupplierRepository = Depends(
+        get_supplier_repository
+    ),
+    medicine_repo: MedicineRepository = Depends(
+        get_medicine_repository
+    ),
+    counter_repo: CountersRepository = Depends(
+        get_counters_repository
+    )
+):
+    return PurchaseService(
+        purchase_repository=purchase_repo,
+        supplier_repository=supplier_repo,
+        medicine_repository=medicine_repo,
+        counter_repository=counter_repo
+    )
 # ==========================
 # Authentication
 # ==========================

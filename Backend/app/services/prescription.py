@@ -36,7 +36,8 @@ class PrescriptionService:
 
         doctor_repository,
 
-        counter_repository
+        counter_repository,
+        medicine_repository
 
     ):
 
@@ -49,6 +50,7 @@ class PrescriptionService:
         self.doctor_repo = doctor_repository
 
         self.counter_repo = counter_repository
+        self.medicine_repo = medicine_repository
 
     # ==========================================
     # Create Prescription
@@ -130,6 +132,29 @@ class PrescriptionService:
                 detail="Doctor not found"
 
             )
+        # -------------------------------
+        # Medicines Exist
+        # -------------------------------
+
+        for medicine in prescription_data.medicines:
+
+            existing_medicine = await self.medicine_repo.get_by_medicine_id(
+
+                hospital_id,
+
+                medicine.medicine_id
+
+            )
+
+            if not existing_medicine:
+
+                raise HTTPException(
+
+                    status_code=status.HTTP_404_NOT_FOUND,
+
+                    detail=f"Medicine not found: {medicine.medicine_id}"
+
+                )
         
 
         # -------------------------------

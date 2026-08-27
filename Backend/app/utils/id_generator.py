@@ -166,4 +166,23 @@ class IDGenerator:
 
         return f"MED-{year}-{seq:05d}"
 
-       
+
+    @staticmethod
+    async def generate_supplier_id(counter_repo) -> str:
+        year = IDGenerator.get_current_year()
+
+        seq= await counter_repo.get_next_sequence(
+            f"supplier:{year}"
+        )
+
+        return f"SUPP-{year}-{seq:05d}"
+    @staticmethod
+    async def generate_purchase_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"purchase:{year}"
+        )
+
+        return f"PUR-{year}-{seq:05d}"
