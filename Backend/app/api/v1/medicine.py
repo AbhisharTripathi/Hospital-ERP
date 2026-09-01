@@ -1,25 +1,311 @@
+# from fastapi import (
+#     APIRouter,
+#     Depends,
+#     Query
+# )
+
+# from app.dependencies import (
+#     get_medicine_service,
+#     require_role
+# )
+
+# from app.models.user import UserRole
+
+# from app.models.medicine import (
+#     DosageForm
+# )
+
+# from app.schemas.medicine import (
+#     MedicineCreate,
+#     MedicineUpdate
+# )
+
+
+# router = APIRouter(
+#     prefix="/medicines",
+#     tags=["Medicines"]
+# )
+
+
+# # ==========================================
+# # Create Medicine
+# # ==========================================
+
+# @router.post("")
+# async def create_medicine(
+
+#     medicine_data: MedicineCreate,
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.create_medicine(
+
+#         current_user=current_user,
+
+#         medicine_data=medicine_data
+
+#     )
+
+
+# # ==========================================
+# # Search / Autocomplete
+# # ==========================================
+
+# @router.get("/search")
+# async def search_medicines(
+
+#     q: str = Query(
+#         min_length=2,
+#         max_length=100
+#     ),
+
+#     limit: int = Query(
+#         default=10,
+#         ge=1,
+#         le=20
+#     ),
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.DOCTOR,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN,
+#             UserRole.RECEPTIONIST
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.search_medicines(
+
+#         current_user=current_user,
+
+#         search=q,
+
+#         limit=limit
+
+#     )
+
+
+# # ==========================================
+# # Get All Medicines
+# # ==========================================
+
+# @router.get("")
+# async def get_all_medicines(
+
+#     page: int = Query(
+#         default=1,
+#         ge=1
+#     ),
+
+#     limit: int = Query(
+#         default=20,
+#         ge=1,
+#         le=100
+#     ),
+
+#     search: str | None = Query(
+#         default=None,
+#         max_length=100
+#     ),
+
+#     dosage_form: DosageForm | None = None,
+
+#     manufacturer: str | None = Query(
+#         default=None,
+#         max_length=150
+#     ),
+
+#     is_active: bool | None = None,
+
+#     sort_by: str = "created_at",
+
+#     sort_order: int = Query(
+#         default=-1,
+#         ge=-1,
+#         le=1
+#     ),
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.DOCTOR,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN,
+#             UserRole.RECEPTIONIST
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.get_all_medicines(
+
+#         current_user=current_user,
+
+#         page=page,
+
+#         limit=limit,
+
+#         search=search,
+
+#         dosage_form=dosage_form,
+
+#         manufacturer=manufacturer,
+
+#         is_active=is_active,
+
+#         sort_by=sort_by,
+
+#         sort_order=sort_order
+
+#     )
+
+
+# # ==========================================
+# # Get Medicine By ID
+# # ==========================================
+
+# @router.get("/{medicine_id}")
+# async def get_medicine_by_id(
+
+#     medicine_id: str,
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.DOCTOR,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN,
+#             UserRole.RECEPTIONIST
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.get_medicine_by_id(
+
+#         current_user=current_user,
+
+#         medicine_id=medicine_id
+
+#     )
+
+
+# # ==========================================
+# # Update Medicine
+# # ==========================================
+
+# @router.put("/{medicine_id}")
+# async def update_medicine(
+
+#     medicine_id: str,
+
+#     medicine_data: MedicineUpdate,
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.update_medicine(
+
+#         current_user=current_user,
+
+#         medicine_id=medicine_id,
+
+#         medicine_data=medicine_data
+
+#     )
+
+
+# # ==========================================
+# # Activate / Deactivate
+# # ==========================================
+
+# @router.patch("/{medicine_id}/status")
+# async def update_medicine_status(
+
+#     medicine_id: str,
+
+#     is_active: bool,
+
+#     current_user=Depends(
+#         require_role(
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN
+#         )
+#     ),
+
+#     medicine_service=Depends(
+#         get_medicine_service
+#     )
+
+# ):
+
+#     return await medicine_service.update_status(
+
+#         current_user=current_user,
+
+#         medicine_id=medicine_id,
+
+#         is_active=is_active
+
+#     )
 from fastapi import (
     APIRouter,
     Depends,
-    Query
+    Query,
+    status
 )
 
 from app.dependencies import (
     get_medicine_service,
     require_role
 )
-
+from app.models.medicine import DosageForm
 from app.models.user import UserRole
-
-from app.models.medicine import (
-    DosageForm
-)
-
 from app.schemas.medicine import (
     MedicineCreate,
+    MedicineResponse,
     MedicineUpdate
 )
-
+from app.schemas.pagination import PaginatedResponse
+from app.services.medicine import MedicineService
 
 router = APIRouter(
     prefix="/medicines",
@@ -27,56 +313,52 @@ router = APIRouter(
 )
 
 
-# ==========================================
-# Create Medicine
-# ==========================================
+# -------------------- Create Medicine -------------------- #
 
-@router.post("")
+@router.post(
+    "",
+    response_model=MedicineResponse,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_medicine(
-
     medicine_data: MedicineCreate,
-
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
             UserRole.ADMIN,
             UserRole.SUPER_ADMIN
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.create_medicine(
-
         current_user=current_user,
-
         medicine_data=medicine_data
-
     )
 
 
-# ==========================================
-# Search / Autocomplete
-# ==========================================
+# -------------------- Search / Autocomplete -------------------- #
 
-@router.get("/search")
+@router.get(
+    "/search",
+    response_model=list[MedicineResponse]
+)
 async def search_medicines(
-
     q: str = Query(
+        ...,
         min_length=2,
         max_length=100
     ),
-
     limit: int = Query(
         default=10,
         ge=1,
         le=20
     ),
-
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
@@ -85,65 +367,56 @@ async def search_medicines(
             UserRole.SUPER_ADMIN,
             UserRole.RECEPTIONIST
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.search_medicines(
-
         current_user=current_user,
-
         search=q,
-
         limit=limit
-
     )
 
 
-# ==========================================
-# Get All Medicines
-# ==========================================
+# -------------------- Get All Medicines -------------------- #
 
-@router.get("")
+@router.get(
+    "",
+    response_model=PaginatedResponse[MedicineResponse]
+)
 async def get_all_medicines(
-
     page: int = Query(
         default=1,
         ge=1
     ),
-
     limit: int = Query(
         default=20,
         ge=1,
         le=100
     ),
-
     search: str | None = Query(
         default=None,
         max_length=100
     ),
-
-    dosage_form: DosageForm | None = None,
-
+    dosage_form: DosageForm | None = Query(
+        default=None
+    ),
     manufacturer: str | None = Query(
         default=None,
         max_length=150
     ),
-
-    is_active: bool | None = None,
-
-    sort_by: str = "created_at",
-
+    is_active: bool | None = Query(
+        default=None
+    ),
+    sort_by: str = Query(
+        default="created_at"
+    ),
     sort_order: int = Query(
         default=-1,
         ge=-1,
         le=1
     ),
-
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
@@ -152,46 +425,32 @@ async def get_all_medicines(
             UserRole.SUPER_ADMIN,
             UserRole.RECEPTIONIST
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.get_all_medicines(
-
         current_user=current_user,
-
         page=page,
-
         limit=limit,
-
         search=search,
-
         dosage_form=dosage_form,
-
         manufacturer=manufacturer,
-
         is_active=is_active,
-
         sort_by=sort_by,
-
         sort_order=sort_order
-
     )
 
 
-# ==========================================
-# Get Medicine By ID
-# ==========================================
+# -------------------- Get Medicine By ID -------------------- #
 
-@router.get("/{medicine_id}")
+@router.get(
+    "/{medicine_id}",
+    response_model=MedicineResponse
+)
 async def get_medicine_by_id(
-
     medicine_id: str,
-
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
@@ -200,89 +459,64 @@ async def get_medicine_by_id(
             UserRole.SUPER_ADMIN,
             UserRole.RECEPTIONIST
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.get_medicine_by_id(
-
         current_user=current_user,
-
         medicine_id=medicine_id
-
     )
 
 
-# ==========================================
-# Update Medicine
-# ==========================================
+# -------------------- Update Medicine -------------------- #
 
-@router.put("/{medicine_id}")
+@router.patch(
+    "/{medicine_id}",
+    response_model=MedicineResponse,
+    status_code=status.HTTP_200_OK
+)
 async def update_medicine(
-
     medicine_id: str,
-
     medicine_data: MedicineUpdate,
-
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
             UserRole.ADMIN,
             UserRole.SUPER_ADMIN
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.update_medicine(
-
         current_user=current_user,
-
         medicine_id=medicine_id,
-
         medicine_data=medicine_data
-
     )
 
 
-# ==========================================
-# Activate / Deactivate
-# ==========================================
+# -------------------- Activate / Deactivate -------------------- #
 
-@router.patch("/{medicine_id}/status")
+@router.patch(
+    "/{medicine_id}/status",
+    response_model=MedicineResponse,
+    status_code=status.HTTP_200_OK
+)
 async def update_medicine_status(
-
     medicine_id: str,
-
-    is_active: bool,
-
+    is_active: bool = Query(...),
+    medicine_service: MedicineService = Depends(
+        get_medicine_service
+    ),
     current_user=Depends(
         require_role(
             UserRole.ADMIN,
             UserRole.SUPER_ADMIN
         )
-    ),
-
-    medicine_service=Depends(
-        get_medicine_service
     )
-
 ):
-
     return await medicine_service.update_status(
-
         current_user=current_user,
-
         medicine_id=medicine_id,
-
         is_active=is_active
-
     )
