@@ -71,6 +71,13 @@ from app.repositories.supplier import SupplierRepository
 from app.services.supplier import SupplierService
 from app.repositories.purchase import PurchaseRepository
 from app.services.purchase import PurchaseService
+from app.repositories.batch import (BatchRepository)
+from app.services.batch import (BatchService)
+from app.services.stock import StockService
+from app.repositories.stock import StockRepository
+from app.repositories.stock_movement import StockMovementRepository
+from app.services.stock_movement import StockMovementService
+
 
 security = HTTPBearer()
 
@@ -225,7 +232,34 @@ def get_purchase_repository(
     db=Depends(get_db)
 ):
     return PurchaseRepository(db)
+# ==========================================
+# Batch Repository
+# ==========================================
 
+def get_batch_repository(
+    request: Request
+):
+
+    return BatchRepository(
+        request.app.state.db
+    )
+
+
+def get_stock_repository(
+    db=Depends(get_db)
+) -> StockRepository:
+
+    return StockRepository(db)
+
+# ==========================================
+# Stock Movement Repository
+# ==========================================
+
+def get_stock_movement_repository(
+    db=Depends(get_db)
+) -> StockMovementRepository:
+
+    return StockMovementRepository(db)
 
 # def get_supplier_repository(
 #     db=Depends(get_db)
@@ -738,6 +772,97 @@ def get_purchase_service(
         supplier_repository=supplier_repo,
         medicine_repository=medicine_repo,
         counter_repository=counter_repo
+    )
+
+# ==========================================
+# Batch Service
+# ==========================================
+
+def get_batch_service(
+    batch_repository=Depends(
+        get_batch_repository
+    ),
+    medicine_repository=Depends(
+        get_medicine_repository
+    ),
+    counter_repository=Depends(
+        get_counters_repository
+    )
+):
+
+    return BatchService(
+
+        batch_repository=batch_repository,
+
+        medicine_repository=medicine_repository,
+
+        counter_repository=counter_repository
+
+    )
+# ==========================================
+# Stock Service
+# ==========================================
+
+def get_stock_service(
+
+    stock_repository: StockRepository = Depends(
+        get_stock_repository
+    ),
+
+    medicine_repository: MedicineRepository = Depends(
+        get_medicine_repository
+    ),
+
+    batch_repository: BatchRepository = Depends(
+        get_batch_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+) -> StockService:
+
+    return StockService(
+
+        stock_repository=stock_repository,
+
+        medicine_repository=medicine_repository,
+
+        batch_repository=batch_repository,
+
+        counter_repository=counter_repository
+
+    )
+
+# ==========================================
+# Stock Movement Service
+# ==========================================
+
+def get_stock_movement_service(
+
+    stock_movement_repository: StockMovementRepository = Depends(
+        get_stock_movement_repository
+    ),
+
+    stock_repository: StockRepository = Depends(
+        get_stock_repository
+    ),
+
+    counter_repository: CountersRepository = Depends(
+        get_counters_repository
+    )
+
+) -> StockMovementService:
+
+    return StockMovementService(
+
+        stock_movement_repository=stock_movement_repository,
+
+        stock_repository=stock_repository,
+
+        counter_repository=counter_repository
+
     )
 # ==========================
 # Authentication

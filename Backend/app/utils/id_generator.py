@@ -186,3 +186,27 @@ class IDGenerator:
         )
 
         return f"PUR-{year}-{seq:05d}"
+
+
+    @staticmethod
+    async def generate_batch_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"batch:{year}"
+        )
+
+        return f"BAT-{year}-{seq:05d}"
+
+
+    @staticmethod
+    async def generate_stock_id(counter_repo) -> str:
+
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"stock:{year}"
+        )
+
+        return f"STK-{year}-{seq:05d}"

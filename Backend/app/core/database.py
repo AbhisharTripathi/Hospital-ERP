@@ -771,6 +771,105 @@ async def connect_mongo():
         ]
     )
 
+
+    await db.batches.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_id", 1),
+            ("batch_number", 1)
+        ],
+        unique=True
+    )
+
+    await db.stocks.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_id", 1),
+            ("batch_id", 1)
+        ],
+        unique=True
+    )
+    # ==========================================
+    # Stock Movement Indexes
+    # ==========================================
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("stock_id", 1),
+            ("created_at", -1)
+        ]
+    )
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("reference_type", 1),
+            ("reference_id", 1)
+        ]
+    )
+
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_id", 1),
+            ("batch_id", 1),
+            ("created_at", -1)
+        ]
+    )
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("movement_type", 1),
+            ("created_at", -1)
+        ]
+    )
+
+
+    # ==========================================
+    # Stock Movement Indexes
+    # ==========================================
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("stock_id", 1),
+            ("created_at", -1)
+        ]
+    )
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("reference_type", 1),
+            ("reference_id", 1)
+        ]
+    )
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("medicine_id", 1),
+            ("batch_id", 1),
+            ("created_at", -1)
+        ]
+    )
+
+    await db.stock_movements.create_index(
+        [
+            ("hospital_id", 1),
+            ("movement_type", 1),
+            ("created_at", -1)
+        ]
+    )
+
+
+
+
+
+
     
 
 

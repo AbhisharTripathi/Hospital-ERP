@@ -26,6 +26,12 @@ from app.api.v1.pharmacy import router as pharmacy_router
 from app.api.v1.medicine import router as medicine_router
 from app.api.v1.supplier import router as supplier_router
 from app.api.v1.purchase import router as purchase_router
+from app.api.v1.batch import router as batch_router
+from app.api.v1.stock import router as stock_router
+from app.api.v1.stock_movement import (
+    router as stock_movement_router
+)
+
 
 def create_app():
 
@@ -87,7 +93,9 @@ def create_app():
     app.include_router(medicine_router)
     app.include_router(supplier_router)
     app.include_router(purchase_router)
+    app.include_router(batch_router)
+    app.include_router(stock_router)
 
-
+    app.include_router(stock_movement_router)
 
     return app
