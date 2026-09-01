@@ -81,7 +81,7 @@ def create_app():
     app.include_router(consultation_router)
     app.include_router(lab_order_router)
     app.include_router(pharmacy_router)
-    app.include_router(medicine_router,prefix="/api/v1")
+    app.include_router(medicine_router)
 
 
 

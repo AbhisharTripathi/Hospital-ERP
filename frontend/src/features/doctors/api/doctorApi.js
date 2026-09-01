@@ -35,3 +35,24 @@ export const updateAppointmentStatus = async (appointment_id, status) => {
     );
     return response.data;
 }
+
+export const createConsultation = async (data) => {
+    const response = await api.post("/consultations", data);
+    return response.data;
+};
+
+export const createPrescription = async (data) => {
+    const response = await api.post("/prescriptions", data);
+    return response.data;
+};
+
+export const searchMedicines = async (query) => {
+    const response = await api.get("medicines/search", {
+        params: {
+            q: query,
+            limit: 10,
+        },
+    });
+
+    return response.data;
+};
