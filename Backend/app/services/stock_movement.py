@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from datetime import datetime, timezone
 
 from app.models.stock_movement import (
     StockMovementModel,
@@ -43,45 +44,24 @@ class StockMovementService:
     # ==========================================
     # Response Builder
     # ==========================================
-
-    def _build_response(
-        self,
-        movement: dict
-    ):
+    def _build_response(self, movement: dict) -> StockMovementResponse:
+        now = datetime.now(timezone.utc)
 
         return StockMovementResponse(
-
-            movement_id=movement["movement_id"],
-
-            hospital_id=movement["hospital_id"],
-
-            stock_id=movement["stock_id"],
-
-            medicine_id=movement["medicine_id"],
-
-            batch_id=movement["batch_id"],
-
-            movement_type=movement["movement_type"],
-
-            quantity=movement["quantity"],
-
-            reference_type=movement.get(
-                "reference_type"
-            ),
-
-            reference_id=movement.get(
-                "reference_id"
-            ),
-
-            reason=movement.get(
-                "reason"
-            ),
-
-            created_by=movement["created_by"],
-
-            created_at=movement["created_at"]
-
+            movement_id=movement.get("movement_id") or str(movement.get("_id", "")),
+            hospital_id=movement.get("hospital_id"),
+            stock_id=movement.get("stock_id"),
+            medicine_id=movement.get("medicine_id"),
+            batch_id=movement.get("batch_id"),
+            movement_type=movement.get("movement_type"),
+            quantity=movement.get("quantity", 0),
+            reference_type=movement.get("reference_type"),
+            reference_id=movement.get("reference_id"),
+            reason=movement.get("reason"),
+            created_by=movement.get("created_by"),
+            created_at=movement.get("created_at") or movement.get("createdAt") or now,
         )
+    
 
     # ==========================================
     # Create Movement

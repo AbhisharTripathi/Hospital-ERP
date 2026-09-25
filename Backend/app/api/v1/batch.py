@@ -54,57 +54,105 @@ async def create_batch(
 
 # -------------------- Get All Batches -------------------- #
 
-@router.get(
-    "",
-    response_model=PaginatedResponse[BatchResponse]
-)
+# @router.get(
+#     "",
+#     response_model=PaginatedResponse[BatchResponse]
+# )
+# async def get_all_batches(
+#     page: int = Query(
+#         default=1,
+#         ge=1
+#     ),
+#     limit: int = Query(
+#         default=20,
+#         ge=1,
+#         le=100
+#     ),
+#     medicine_id: str | None = Query(
+#         default=None
+#     ),
+#     status: BatchStatus | None = Query(
+#         default=None
+#     ),
+#     sort_by: str = Query(
+#         default="expiry_date"
+#     ),
+#     sort_order: int = Query(
+#         default=1,
+#         ge=-1,
+#         le=1
+#     ),
+#     batch_service: BatchService = Depends(
+#         get_batch_service
+#     ),
+#     current_user=Depends(
+#         require_role(
+#             UserRole.PHARMACIST,
+#             UserRole.DOCTOR,
+#             UserRole.ADMIN,
+#             UserRole.SUPER_ADMIN,
+#             UserRole.RECEPTIONIST
+#         )
+#     )
+# ):
+#     return await batch_service.get_all_batches(
+#         current_user=current_user,
+#         page=page,
+#         limit=limit,
+#         medicine_id=medicine_id,
+#         status=status,
+#         sort_by=sort_by,
+#         sort_order=sort_order
+#     )
+
+
+@router.get("", response_model=PaginatedResponse[BatchResponse])
 async def get_all_batches(
-    page: int = Query(
-        default=1,
-        ge=1
-    ),
-    limit: int = Query(
-        default=20,
-        ge=1,
-        le=100
-    ),
-    medicine_id: str | None = Query(
-        default=None
-    ),
-    status: BatchStatus | None = Query(
-        default=None
-    ),
-    sort_by: str = Query(
-        default="expiry_date"
-    ),
-    sort_order: int = Query(
-        default=1,
-        ge=-1,
-        le=1
-    ),
-    batch_service: BatchService = Depends(
-        get_batch_service
-    ),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    medicine_id: str | None = Query(default=None),
+    status: BatchStatus | None = Query(default=None),
+    sort_by: str = Query(default="expiry_date"),
+    sort_order: int = Query(default=1, ge=-1, le=1),
+    batch_service: BatchService = Depends(get_batch_service),
     current_user=Depends(
         require_role(
             UserRole.PHARMACIST,
             UserRole.DOCTOR,
             UserRole.ADMIN,
             UserRole.SUPER_ADMIN,
-            UserRole.RECEPTIONIST
+            UserRole.RECEPTIONIST,
         )
-    )
+    ),
 ):
-    return await batch_service.get_all_batches(
+    result = await batch_service.get_all_batches(
         current_user=current_user,
         page=page,
         limit=limit,
         medicine_id=medicine_id,
         status=status,
         sort_by=sort_by,
-        sort_order=sort_order
+        sort_order=sort_order,
     )
 
+    # Extract raw data safely
+    items = result.get("items", [])
+    total = result.get("total", len(items))
+    total_pages = result.get("total_pages", (total + limit - 1) // limit if limit else 1)
+
+    # Return with exact pagination schema fields required by Pydantic
+    return {
+        "data": items,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "total_pages": total_pages,
+            "total_records": total,            # Added missing field
+            "has_next": page < total_pages,   # Added missing field
+            "has_previous": page > 1,          # Added missing field
+        },
+    }
 
 # -------------------- Get Batches By Medicine -------------------- #
 

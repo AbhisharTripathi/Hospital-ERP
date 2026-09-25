@@ -213,6 +213,66 @@ class MedicineService:
     # Get All Medicines
     # --------------------------------------------------
 
+    # async def get_all_medicines(
+    #     self,
+    #     current_user,
+    #     page: int = 1,
+    #     limit: int = 20,
+    #     search: str | None = None,
+    #     dosage_form=None,
+    #     manufacturer: str | None = None,
+    #     is_active: bool | None = None,
+    #     sort_by: str = "created_at",
+    #     sort_order: int = -1
+    # ):
+
+    #     result = await self.medicine_repo.get_all_medicines(
+
+    #         hospital_id=current_user["hospital_id"],
+
+    #         page=page,
+
+    #         limit=limit,
+
+    #         search=search,
+
+    #         dosage_form=dosage_form,
+
+    #         manufacturer=manufacturer,
+
+    #         is_active=is_active,
+
+    #         sort_by=sort_by,
+
+    #         sort_order=sort_order
+
+    #     )
+
+    #     medicines = [
+
+    #         self._build_response(item)
+
+    #         for item in result["items"]
+
+    #     ]
+
+    #     return {
+
+    #         "items": medicines,
+
+    #         "total": result["total"],
+
+    #         "page": page,
+
+    #         "limit": limit,
+
+    #         "total_pages": (
+
+    #             result["total"] + limit - 1
+
+    #         ) // limit
+
+    #     }
     async def get_all_medicines(
         self,
         current_user,
@@ -225,53 +285,32 @@ class MedicineService:
         sort_by: str = "created_at",
         sort_order: int = -1
     ):
-
         result = await self.medicine_repo.get_all_medicines(
-
             hospital_id=current_user["hospital_id"],
-
             page=page,
-
             limit=limit,
-
             search=search,
-
             dosage_form=dosage_form,
-
             manufacturer=manufacturer,
-
             is_active=is_active,
-
             sort_by=sort_by,
-
             sort_order=sort_order
-
         )
 
         medicines = [
-
             self._build_response(item)
-
-            for item in result["items"]
-
+            for item in result.get("items", [])
         ]
 
+        pagination = build_pagination_meta(
+            page=page,
+            limit=limit,
+            total_records=result["total"]
+        )
+
         return {
-
-            "items": medicines,
-
-            "total": result["total"],
-
-            "page": page,
-
-            "limit": limit,
-
-            "total_pages": (
-
-                result["total"] + limit - 1
-
-            ) // limit
-
+            "data": medicines,
+            "pagination": pagination
         }
         # --------------------------------------------------
     # Get Medicine By ID

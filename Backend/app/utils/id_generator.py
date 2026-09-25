@@ -210,3 +210,14 @@ class IDGenerator:
         )
 
         return f"STK-{year}-{seq:05d}"
+
+
+    @staticmethod
+    async def generate_stock_movement_id(counter_repo) -> str:
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"stock_movement:{year}"
+        )
+
+        return f"STM-{year}-{seq:05d}"

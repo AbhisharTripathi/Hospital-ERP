@@ -753,6 +753,10 @@ def get_supplier_service(
     )
 
 
+##########################
+# Purchase service
+########################
+
 def get_purchase_service(
     purchase_repo: PurchaseRepository = Depends(
         get_purchase_repository
@@ -765,14 +769,48 @@ def get_purchase_service(
     ),
     counter_repo: CountersRepository = Depends(
         get_counters_repository
+    ),
+    batch_repo: BatchRepository = Depends(
+        get_batch_repository
+    ),
+    stock_repo: StockRepository = Depends(
+        get_stock_repository
+    ),
+    stock_movement_repo: StockMovementRepository = Depends(
+        get_stock_movement_repository
     )
 ):
     return PurchaseService(
         purchase_repository=purchase_repo,
         supplier_repository=supplier_repo,
         medicine_repository=medicine_repo,
-        counter_repository=counter_repo
+        counter_repository=counter_repo,
+        batch_repository=batch_repo,
+        stock_repository=stock_repo,
+        stock_movement_repository=stock_movement_repo
     )
+
+
+# def get_purchase_service(
+#     purchase_repo: PurchaseRepository = Depends(
+#         get_purchase_repository
+#     ),
+#     supplier_repo: SupplierRepository = Depends(
+#         get_supplier_repository
+#     ),
+#     medicine_repo: MedicineRepository = Depends(
+#         get_medicine_repository
+#     ),
+#     counter_repo: CountersRepository = Depends(
+#         get_counters_repository
+#     )
+# ):
+#     return PurchaseService(
+#         purchase_repository=purchase_repo,
+#         supplier_repository=supplier_repo,
+#         medicine_repository=medicine_repo,
+#         counter_repository=counter_repo
+#     )
 
 # ==========================================
 # Batch Service
@@ -803,36 +841,49 @@ def get_batch_service(
 # Stock Service
 # ==========================================
 
+# def get_stock_service(
+
+#     stock_repository: StockRepository = Depends(
+#         get_stock_repository
+#     ),
+
+#     medicine_repository: MedicineRepository = Depends(
+#         get_medicine_repository
+#     ),
+
+#     batch_repository: BatchRepository = Depends(
+#         get_batch_repository
+#     ),
+
+#     counter_repository: CountersRepository = Depends(
+#         get_counters_repository
+#     )
+
+# ) -> StockService:
+
+#     return StockService(
+
+#         stock_repository=stock_repository,
+
+#         medicine_repository=medicine_repository,
+
+#         batch_repository=batch_repository,
+
+#         counter_repository=counter_repository
+
+#     )
+
 def get_stock_service(
-
-    stock_repository: StockRepository = Depends(
-        get_stock_repository
-    ),
-
-    medicine_repository: MedicineRepository = Depends(
-        get_medicine_repository
-    ),
-
-    batch_repository: BatchRepository = Depends(
-        get_batch_repository
-    ),
-
-    counter_repository: CountersRepository = Depends(
-        get_counters_repository
-    )
-
+    stock_repository: StockRepository = Depends(get_stock_repository),
+    medicine_repository: MedicineRepository = Depends(get_medicine_repository),
+    batch_repository: BatchRepository = Depends(get_batch_repository),
+    counter_repository: CountersRepository = Depends(get_counters_repository),
 ) -> StockService:
-
     return StockService(
-
         stock_repository=stock_repository,
-
         medicine_repository=medicine_repository,
-
         batch_repository=batch_repository,
-
-        counter_repository=counter_repository
-
+        counter_repository=counter_repository,
     )
 
 # ==========================================

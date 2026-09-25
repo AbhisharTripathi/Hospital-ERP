@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-
+from datetime import datetime, timezone
 from app.models.batch import (
     BatchModel,
     BatchStatus
@@ -68,9 +68,9 @@ class BatchService:
 
             status=batch["status"],
 
-            created_at=batch["created_at"],
-
-            updated_at=batch["updated_at"]
+            
+            created_at=batch.get("created_at") or datetime.now(timezone.utc),
+            updated_at=batch.get("updated_at") or datetime.now(timezone.utc),
 
         )
 

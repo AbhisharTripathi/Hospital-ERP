@@ -8,7 +8,7 @@ from app.schemas.supplier import (
 from app.repositories.supplier import SupplierRepository
 from app.repositories.counters import CountersRepository
 from app.utils.id_generator import IDGenerator
-
+from app.schemas.pagination import build_pagination_meta
 
 class SupplierService:
     def __init__(
@@ -147,14 +147,16 @@ class SupplierService:
             self._build_response(item)
             for item in result.get("items", [])
         ]
+
+        pagination = build_pagination_meta(
+            page=page,
+            limit=limit,
+            total_records=result["total"]
+        )
+
         return {
-            "items": suppliers,
-            "total": result["total"],
-            "page": page,
-            "limit": limit,
-            "total_pages": (
-                result["total"] + limit - 1
-            ) // limit
+            "data": suppliers,
+            "pagination": pagination
         }
 
     # ----------Get supplier By id-------------

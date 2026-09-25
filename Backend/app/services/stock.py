@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-
+from datetime import datetime, timezone
 from app.models.stock import (
     StockModel,
     StockStatus
@@ -34,6 +34,8 @@ from app.utils.id_generator import (
 
 class StockService:
 
+
+
     def __init__(
         self,
         stock_repository: StockRepository,
@@ -41,7 +43,6 @@ class StockService:
         batch_repository: BatchRepository,
         counter_repository: CountersRepository
     ):
-
         self.stock_repo = stock_repository
         self.medicine_repo = medicine_repository
         self.batch_repo = batch_repository
@@ -50,36 +51,22 @@ class StockService:
     # ==========================================
     # Response Builder
     # ==========================================
+    def _build_response(self, stock: dict):
+            now = datetime.now(timezone.utc)
 
-    def _build_response(
-        self,
-        stock: dict
-    ):
-
-        return StockResponse(
-
-            stock_id=stock["stock_id"],
-
-            hospital_id=stock["hospital_id"],
-
-            medicine_id=stock["medicine_id"],
-
-            batch_id=stock["batch_id"],
-
-            quantity=stock["quantity"],
-
-            reserved_quantity=stock["reserved_quantity"],
-
-            available_quantity=stock["available_quantity"],
-
-            status=stock["status"],
-
-            created_at=stock["created_at"],
-
-            updated_at=stock["updated_at"]
-
-        )
-
+            return StockResponse(
+                stock_id=stock.get("stock_id") or str(stock.get("_id", "")),
+                hospital_id=stock.get("hospital_id"),
+                medicine_id=stock.get("medicine_id"),
+                batch_id=stock.get("batch_id"),
+                quantity=stock.get("quantity", 0),
+                reserved_quantity=stock.get("reserved_quantity", 0),
+                available_quantity=stock.get("available_quantity", 0),
+                status=stock.get("status"),
+                created_at=stock.get("created_at") or stock.get("createdAt") or now,
+                updated_at=stock.get("updated_at") or stock.get("updatedAt") or now,
+            )
+    
     # ==========================================
     # Create Stock
     # ==========================================

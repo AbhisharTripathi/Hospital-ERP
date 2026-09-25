@@ -33,6 +33,9 @@ from app.repositories.counters import (
 from app.utils.id_generator import (
     IDGenerator
 )
+from app.repositories.batch import BatchRepository
+from app.repositories.stock import StockRepository
+from app.repositories.stock_movement import StockMovementRepository
 
 
 class PurchaseService:
@@ -47,7 +50,10 @@ class PurchaseService:
 
         medicine_repository: MedicineRepository,
 
-        counter_repository: CountersRepository
+        counter_repository: CountersRepository,
+        batch_repository: BatchRepository,
+        stock_repository: StockRepository,
+        stock_movement_repository: StockMovementRepository
 
     ):
 
@@ -58,6 +64,10 @@ class PurchaseService:
         self.medicine_repo = medicine_repository
 
         self.counter_repo = counter_repository
+
+        self.batch_repo = batch_repository
+        self.stock_repo = stock_repository
+        self.stock_movement_repo = stock_movement_repository
 
     # --------------------------------------------------
     # Response Builder
@@ -267,10 +277,22 @@ class PurchaseService:
 
         )
 
+    
+
+   
+     
+    
+
+    
+
+    
+
     # --------------------------------------------------
     # Get Purchase By ID
     # --------------------------------------------------
 
+    
+    
     async def get_purchase_by_id(
 
         self,
@@ -604,6 +626,221 @@ class PurchaseService:
 
         )
 
+
+
+    # --------------------------------------------------
+    # Receive Purchase 
+    # --------------------------------------------------
+
+    async def receive_purchase(
+        self,
+        current_user,
+        purchase_id: str
+    ):
+        hospital_id = current_user["hospital_id"]
+        user_id = current_user["user_id"]
+
+        # ---------------------------------------------
+        # Purchase Exists
+        # ---------------------------------------------
+
+        purchase = await self.purchase_repo.get_by_purchase_id(
+            hospital_id=hospital_id,
+            purchase_id=purchase_id
+        )
+
+        if not purchase:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Purchase not found"
+            )
+
+        # ---------------------------------------------
+        # Purchase Status Validation
+        # ---------------------------------------------
+
+        if purchase["status"] == PurchaseStatus.RECEIVED.value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Purchase is already received"
+            )
+
+        if purchase["status"] == PurchaseStatus.CANCELLED.value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cancelled purchase cannot be received"
+            )
+
+        # ---------------------------------------------
+        # Process Each Purchase Item
+        # ---------------------------------------------
+
+        for item in purchase["items"]:
+
+            medicine_id = item["medicine_id"]
+            batch_number = item["batch_number"]
+            quantity = item["quantity"]
+
+            # -----------------------------------------
+            # Medicine Validation
+            # -----------------------------------------
+
+            medicine = await self.medicine_repo.get_by_medicine_id(
+                hospital_id=hospital_id,
+                medicine_id=medicine_id
+            )
+
+            if not medicine:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Medicine not found: {medicine_id}"
+                )
+
+            if not medicine["is_active"]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Medicine is inactive: {medicine_id}"
+                )
+
+            # -----------------------------------------
+            # Find Existing Batch
+            # -----------------------------------------
+
+            batch = await self.batch_repo.find_by_medicine_and_batch(
+                hospital_id=hospital_id,
+                medicine_id=medicine_id,
+                batch_number=batch_number
+            )
+
+            # -----------------------------------------
+            # Create Batch If Not Exists
+            # -----------------------------------------
+
+            if not batch:
+
+                batch_id = await IDGenerator.generate_batch_id(
+                    self.counter_repo
+                )
+
+                batch_data = {
+                    "batch_id": batch_id,
+                    "hospital_id": hospital_id,
+                    "medicine_id": medicine_id,
+                    "batch_number": batch_number,
+                    "expiry_date": item["expiry_date"],
+                    "purchase_price": item["purchase_price"],
+                    "unit": item["unit"],
+                    "status": "ACTIVE"
+                }
+
+                await self.batch_repo.create_batch(
+                    batch_data
+                )
+
+                batch = batch_data
+
+            else:
+
+                batch_id = batch["batch_id"]
+
+            # -----------------------------------------
+            # Find Existing Stock
+            # -----------------------------------------
+
+            stock = await self.stock_repo.get_by_medicine_batch(
+                hospital_id=hospital_id,
+                medicine_id=medicine_id,
+                batch_id=batch_id
+            )
+
+            # -----------------------------------------
+            # Create Stock If Not Exists
+            # -----------------------------------------
+
+            if not stock:
+
+                stock_id = await IDGenerator.generate_stock_id(
+                    self.counter_repo
+                )
+
+                stock_data = {
+                    "stock_id": stock_id,
+                    "hospital_id": hospital_id,
+                    "medicine_id": medicine_id,
+                    "batch_id": batch_id,
+                    "quantity": quantity,
+                    "reserved_quantity": 0,
+                    "available_quantity": quantity,
+                    "status": "AVAILABLE"
+                }
+
+                await self.stock_repo.create_stock(
+                    stock_data
+                )
+
+                stock = stock_data
+
+            # -----------------------------------------
+            # Increase Existing Stock
+            # -----------------------------------------
+
+            else:
+
+                await self.stock_repo.increase_quantity(
+                    hospital_id=hospital_id,
+                    stock_id=stock["stock_id"],
+                    quantity=quantity
+                )
+
+            # -----------------------------------------
+            # Create Stock Movement IN
+            # -----------------------------------------
+
+            movement_id = await IDGenerator.generate_stock_movement_id(
+                self.counter_repo
+            )
+
+            movement_data = {
+                "movement_id": movement_id,
+                "hospital_id": hospital_id,
+                "stock_id": stock["stock_id"],
+                "medicine_id": medicine_id,
+                "batch_id": batch_id,
+                "movement_type": "IN",
+                "quantity": quantity,
+                "reference_type": "PURCHASE",
+                "reference_id": purchase_id,
+                "reason": "Purchase received",
+                "created_by": user_id
+            }
+
+            await self.stock_movement_repo.create_movement(
+                movement_data
+            )
+
+        # ---------------------------------------------
+        # Update Purchase Status
+        # ---------------------------------------------
+
+        await self.purchase_repo.update_status(
+            hospital_id=hospital_id,
+            purchase_id=purchase_id,
+            status=PurchaseStatus.RECEIVED
+        )
+
+        # ---------------------------------------------
+        # Get Updated Purchase
+        # ---------------------------------------------
+
+        updated = await self.purchase_repo.get_by_purchase_id(
+            hospital_id=hospital_id,
+            purchase_id=purchase_id
+        )
+
+        return self._build_response(updated)
+
+
+
     # --------------------------------------------------
     # Delete Purchase
     # --------------------------------------------------
@@ -651,6 +888,10 @@ class PurchaseService:
                 detail="Received purchase cannot be deleted"
 
             )
+
+
+
+        
 
         # ---------------- Delete ----------------
 

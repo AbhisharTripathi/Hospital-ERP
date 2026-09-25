@@ -332,10 +332,11 @@ from fastapi import (
 )
 
 from app.dependencies import (
+    get_current_user,
     get_purchase_service,
     require_role
 )
-
+from app.services.purchase import PurchaseService
 from app.models.user import UserRole
 
 from app.models.purchase import (
@@ -463,6 +464,22 @@ async def get_all_purchases(
         sort_order=sort_order
 
     )
+# ==========================================
+# Receive Purchase
+# ==========================================
+@router.post("/{purchase_id}/receive")
+async def receive_purchase(
+    purchase_id: str,
+    current_user=Depends(get_current_user),
+    purchase_service: PurchaseService = Depends(
+        get_purchase_service
+    )
+):
+    return await purchase_service.receive_purchase(
+        current_user=current_user,
+        purchase_id=purchase_id
+    )
+
 
 
 # ==========================================
@@ -615,6 +632,11 @@ async def update_purchase_status(
         purchase_status=status_data.status
 
     )
+
+
+
+
+
 
 
 # ==========================================
