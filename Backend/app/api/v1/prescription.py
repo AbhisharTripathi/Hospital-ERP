@@ -6,6 +6,7 @@ from fastapi import (
 
 from app.dependencies import (
     get_prescription_service,
+    get_dispense_service,
     require_role
 )
 
@@ -20,6 +21,7 @@ from app.schemas.prescription import (
     PrescriptionUpdate,
     PrescriptionStatusUpdate
 )
+from app.schemas.dispense import DispenseResponse
 
 router = APIRouter(
     prefix="/prescriptions",
@@ -66,7 +68,84 @@ async def create_prescription(
         prescription_data=prescription_data
 
     )
+# ==========================================
+# Get Patient Prescription History
+# ==========================================
 
+@router.get("/patient/{patient_id}")
+
+async def get_patient_prescriptions(
+
+    patient_id: str,
+
+    current_user=Depends(
+
+        require_role(
+
+            UserRole.DOCTOR,
+
+            UserRole.ADMIN,
+
+            UserRole.SUPER_ADMIN,
+
+            UserRole.RECEPTIONIST
+
+        )
+
+    ),
+
+    prescription_service=Depends(
+        get_prescription_service
+    )
+
+):
+
+    return await prescription_service.get_patient_prescriptions(
+
+        hospital_id=current_user["hospital_id"],
+
+        patient_id=patient_id
+
+    )
+
+
+# ==========================================
+# Dispense Prescription
+# ==========================================
+
+@router.post("/{prescription_id}/dispense",response_model=DispenseResponse)
+
+async def dispense_prescription(
+
+    prescription_id: str,
+
+    current_user=Depends(
+
+        require_role(
+
+            UserRole.PHARMACIST,
+            UserRole.ADMIN,
+            UserRole.SUPER_ADMIN
+
+        )
+
+    ),
+
+    dispense_service=Depends(
+        get_dispense_service
+    )
+
+):
+
+    return await dispense_service.dispense_prescription(
+
+        hospital_id=current_user["hospital_id"],
+
+        current_user=current_user,
+
+        prescription_id=prescription_id
+
+    )
 
 # ==========================================
 # Get Prescription By ID
@@ -108,46 +187,6 @@ async def get_prescription_by_id(
 
     )
 
-
-# ==========================================
-# Get Patient Prescription History
-# ==========================================
-
-@router.get("/patient/{patient_id}")
-
-async def get_patient_prescriptions(
-
-    patient_id: str,
-
-    current_user=Depends(
-
-        require_role(
-
-            UserRole.DOCTOR,
-
-            UserRole.ADMIN,
-
-            UserRole.SUPER_ADMIN,
-
-            UserRole.RECEPTIONIST
-
-        )
-
-    ),
-
-    prescription_service=Depends(
-        get_prescription_service
-    )
-
-):
-
-    return await prescription_service.get_patient_prescriptions(
-
-        hospital_id=current_user["hospital_id"],
-
-        patient_id=patient_id
-
-    )
 
 
 # ==========================================

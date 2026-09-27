@@ -36,7 +36,7 @@ class PrescriptionMedicine(BaseModel):
     duration: str
 
     timing: MedicineTiming
-
+    quantity: int = Field(gt=0)
     instructions: str | None = None
 
 
@@ -52,11 +52,11 @@ class PrescriptionModel(BaseModel):
 
     doctor_id: str
 
-    # diagnosis: str
+    
 
     advice: str | None = None
 
-    # follow_up_date: date | None = None
+    
 
     medicines: list[PrescriptionMedicine]
 

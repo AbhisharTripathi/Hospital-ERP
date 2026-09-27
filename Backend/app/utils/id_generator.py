@@ -221,3 +221,13 @@ class IDGenerator:
         )
 
         return f"STM-{year}-{seq:05d}"
+
+    @staticmethod
+    async def generate_dispense_id(counter_repo) -> str:
+        year = IDGenerator.get_current_year()
+
+        seq = await counter_repo.get_next_sequence(
+            f"dispense:{year}"
+        )
+
+        return f"DSP-{year}-{seq:05d}"
